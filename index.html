@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title id="app-title">Gestor de Ateliê Pro</title>
+    <style>
+        :root {
+            --cor-primaria: #E91E63; /* Rosa Padrão */
+            --cor-secundaria: #AD1457; /* Rosa Escuro Padrão */
+            --cor-fundo-app: #F4F6F9; /* Um cinza um pouco mais suave */
+            --cor-fundo-container: #FFFFFF; /* Branco */
+            --cor-texto: #343A40; /* Cinza Escuro */
+            --cor-texto-claro: #FFFFFF; /* Branco */
+            --cor-destaque: #FFC107; /* Amarelo */
+            --cor-sucesso: #28A745; /* Verde */
+            --cor-erro: #DC3545; /* Vermelho */
+            --cor-info: #17A2B8; /* Azul Ciano */
+            --cor-aviso: #FF7F0E; /* Laranja */
+            --cor-borda: #DEE2E6; /* Cinza Claro */
+            --sombra-padrao: 0 3px 10px rgba(0, 0, 0, 0.08);
+            --borda-arredondada: 10px;
+            --padding-padrao: 16px;
+            --altura-bottom-nav: 65px;
+            --altura-header: 60px;
+            --altura-subheader: 45px;
+            --cor-primaria-transparente: rgba(233, 30, 99, 0.25);
+        }
+
+        /* TEMAS (como na versão anterior) */
+        body.theme-classic-rose { /* Padrão */ }
+        body.theme-ocean-breeze { --cor-primaria: #007BFF; --cor-secundaria: #0056B3; --cor-fundo-app: #E7F3FF; --cor-fundo-container: #FDFEFF; --cor-texto: #212529; --cor-destaque: #FFC107; --cor-primaria-transparente: rgba(0, 123, 255, 0.25); }
+        body.theme-forest-haven { --cor-primaria: #28A745; --cor-secundaria: #19692C; --cor-fundo-app: #EAF6EC; --cor-fundo-container: #FBFCFA; --cor-texto: #155724; --cor-destaque: #FD7E14; --cor-primaria-transparente: rgba(40, 167, 69, 0.25); }
+        body.theme-sunset-glow { --cor-primaria: #FD7E14; --cor-secundaria: #B3590D; --cor-fundo-app: #FFF3E0; --cor-fundo-container: #FFFCF5; --cor-texto: #592E00; --cor-destaque: #007BFF; --cor-primaria-transparente: rgba(253, 126, 20, 0.25); }
+        body.theme-lavender-dream { --cor-primaria: #6F42C1; --cor-secundaria: #4A2C82; --cor-fundo-app: #F0E6FF; --cor-fundo-container: #F9F5FF; --cor-texto: #3D2370; --cor-destaque: #20C997; --cor-primaria-transparente: rgba(111, 66, 193, 0.25); }
+        body.theme-dark-mode { --cor-primaria: #BB86FC; --cor-secundaria: #3700B3; --cor-fundo-app: #121212; --cor-fundo-container: #1E1E1E; --cor-texto: #E0E0E0; --cor-texto-claro: #121212; --cor-destaque: #03DAC6; --cor-borda: #444444; --cor-primaria-transparente: rgba(187, 134, 252, 0.25); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--cor-fundo-app); color: var(--cor-texto); line-height: 1.6;
+            padding: calc(var(--altura-header) + var(--altura-subheader) + 15px) 15px calc(var(--altura-bottom-nav) + 20px) 15px;
+            transition: background-color 0.3s ease, color 0.3s ease; min-height: 100vh;
+        }
+        .app-header-fixed { position: fixed; top: 0; left: 0; width: 100%; z-index: 999; background-color: var(--cor-fundo-container); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        header#app-main-header { height: var(--altura-header); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px var(--padding-padrao); border-bottom: 1px solid var(--cor-borda); }
+        header#app-main-header h1 { color: var(--cor-primaria); font-size: 1.5em; margin-bottom: 0; line-height: 1.2; }
+        #nome-atelie-header { font-style: italic; }
+        header#app-main-header p { font-size: 0.8em; color: var(--cor-texto); opacity: 0.7; margin-top: 2px; line-height: 1.2; }
+        .sub-header-fixed { height: var(--altura-subheader); display: flex; align-items: center; justify-content: center; padding: 0 var(--padding-padrao); background-color: var(--cor-fundo-app); border-bottom: 1px solid var(--cor-borda); transition: font-size 0.3s ease, box-shadow 0.3s ease; }
+        .sub-header-fixed h2 { font-size: 1.1em; color: var(--cor-secundaria); margin: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body.scrolled .sub-header-fixed { box-shadow: var(--sombra-padrao); }
+        body.scrolled .sub-header-fixed h2 { font-size: 0.95em; }
+        .container-principal { max-width: 1200px; margin: 0 auto; width: 100%; background-color: transparent; padding: 0; box-shadow: none; border-radius: 0; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--altura-bottom-nav); background-color: var(--cor-fundo-container); display: flex; justify-content: space-around; align-items: stretch; box-shadow: 0 -3px 12px rgba(0,0,0,0.1); z-index: 1000; border-top: 1px solid var(--cor-borda); }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 6px 2px; cursor: pointer; border: none; background: transparent; color: var(--cor-texto); opacity: 0.7; font-size: 0.65em; text-align: center; transition: color 0.2s ease, opacity 0.2s ease, border-top-color 0.2s ease; border-top: 3px solid transparent; }
+        .bottom-nav-item .icon { font-size: 1.6em; margin-bottom: 1px; }
+        .bottom-nav-item.active { color: var(--cor-primaria); opacity: 1; font-weight: 600; border-top-color: var(--cor-primaria); }
+        .tab-content { display: none; animation: fadeInTab 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeInTab { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .secao { margin-bottom: 25px; padding: var(--padding-padrao); background-color: var(--cor-fundo-container); border-radius: var(--borda-arredondada); border: 1px solid var(--cor-borda); box-shadow: var(--sombra-padrao); }
+        .secao h2 { color: var(--cor-secundaria); margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .secao h3 { color: var(--cor-primaria); margin: 18px 0 10px 0; font-size: 1.25em; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--cor-texto); font-size: 0.9em; }
+        input[type="text"], input[type="number"], input[type="date"], input[type="tel"], input[type="email"], input[type="time"], input[type="month"], input[type="color"], select, textarea { width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid var(--cor-borda); border-radius: calc(var(--borda-arredondada) - 5px); font-size: 1em; background-color: var(--cor-fundo-app); color: var(--cor-texto); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cor-primaria); box-shadow: 0 0 0 3px var(--cor-primaria-transparente); }
+        input[type="color"] { padding: 2px; height: 45px; }
+        textarea { min-height: 80px; resize: vertical; }
+        .checkbox-label { font-weight: normal; display: flex; align-items: center; margin-bottom: 10px; font-size: 1em; }
+        input[type="checkbox"] { margin-right: 8px; transform: scale(1.3); }
+        .campo-grupo { margin-bottom: 14px; }
+        .grid-2-col, .grid-3-col { display: grid; gap: 14px; }
+        .grid-2-col { grid-template-columns: 1fr; }
+        .grid-3-col { grid-template-columns: 1fr; }
+        @media (min-width: 600px) { .grid-2-col { grid-template-columns: 1fr 1fr; } .grid-3-col { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));} }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; font-size: 1em; font-weight: bold; color: var(--cor-texto-claro); background-color: var(--cor-primaria); border: none; border-radius: var(--borda-arredondada); cursor: pointer; text-align: center; transition: all 0.2s ease; text-decoration: none; }
+        .btn:hover { filter: brightness(115%); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0px) scale(0.98); filter: brightness(100%);}
+        .btn .icon { font-size: 1.1em; }
+        .btn-secundario { background-color: var(--cor-texto); opacity:0.8; } .btn-secundario:hover { opacity:1; }
+        .btn-sucesso { background-color: var(--cor-sucesso); } .btn-perigo { background-color: var(--cor-erro); }
+        .btn-aviso { background-color: var(--cor-aviso); } .btn-info { background-color: var(--cor-info); }
+        .btn-pequeno { padding: 6px 12px; font-size: 0.85em; }
+        .btn-full-width { width: 100%; display: flex; margin-top: 8px; }
+        .btn-help { background:none; border:none; color: var(--cor-info); font-size: 1em; padding: 0 3px; margin-left: 8px; cursor:pointer; opacity: 0.6; line-height: 1; vertical-align: middle; }
+        .btn-help:hover { color: var(--cor-primaria); opacity: 1; }
+        
+        .tabela-responsiva { overflow-x: auto; margin-top: 15px; /* border: 1px solid var(--cor-borda); border-radius: var(--borda-arredondada); */ /* Removido para aplicar estilo do exemplo */ }
+        table { width: 100%; border-collapse: collapse; /* Mantido collapse para evitar "dentes" com bordas individuais */ }
+        th, td { 
+            border: 1px solid var(--cor-borda); /* Borda individual como no exemplo */
+            padding: 10px 12px; /* Ajuste o padding conforme necessário */
+            text-align: left; 
+            vertical-align: middle; 
+            font-size: 0.9em; 
+            line-height: 1.4; /* Melhorado para texto espremido */
+            /* word-break: break-word; /* Pode ser útil, mas pode quebrar palavras de forma estranha */
+        }
+        /* Removendo padding extra da tabela-responsiva se as células já tiverem */
+        /* .tabela-responsiva > table > tbody > tr > td:first-child, 
+        .tabela-responsiva > table > thead > tr > th:first-child { padding-left: 0; }
+        .tabela-responsiva > table > tbody > tr > td:last-child, 
+        .tabela-responsiva > table > thead > tr > th:last-child { padding-right: 0; } */
+
+        th { background-color: var(--cor-secundaria); color: var(--cor-texto-claro); font-weight: bold; }
+        tr:nth-child(even) td { background-color: #f9f9f9; }
+        tr:hover td { background-color: #f1f1f1; }
+        td .btn { margin-right: 5px; margin-bottom: 5px; }
+        
+        /* Tentativa de controle de largura de colunas para evitar "dentes" e texto espremido */
+        /* Estas são sugestões, ajuste conforme o conteúdo real */
+        #tabela-producao th:nth-child(1), #tabela-producao td:nth-child(1) { min-width: 80px; } /* Data */
+        #tabela-producao th:nth-child(2), #tabela-producao td:nth-child(2) { min-width: 130px; } /* Peça Base/Cor */
+        #tabela-producao th:nth-child(3), #tabela-producao td:nth-child(3) { min-width: 120px; } /* Cliente */
+        #tabela-producao th:nth-child(4), #tabela-producao td:nth-child(4) { min-width: 150px; white-space: normal; } /* Descrição Detalhada */
+        #tabela-producao th:nth-child(5), #tabela-producao td:nth-child(5) { min-width: 50px; text-align: center; } /* Qtd */
+        #tabela-producao th:nth-child(6), #tabela-producao td:nth-child(6) { min-width: 130px; white-space: normal; } /* Processos */
+        #tabela-producao th:nth-child(7), #tabela-producao td:nth-child(7) { min-width: 90px; text-align: right; } /* Valor */
+        #tabela-producao th:nth-child(8), #tabela-producao td:nth-child(8) { min-width: 90px; text-align: center; } /* Status */
+        #tabela-producao th:nth-child(9), #tabela-producao td:nth-child(9) { min-width: 180px; text-align: center; } /* Ações */
+
+
+        .dashboard-cards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
+        @media (min-width: 500px) { .dashboard-cards { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 900px) { .dashboard-cards { grid-template-columns: 1fr 1fr 1fr; } }
+        .card { background-color: var(--cor-primaria); color: var(--cor-texto-claro); padding: var(--padding-padrao); border-radius: var(--borda-arredondada); text-align: center; box-shadow: var(--sombra-padrao); display: flex; flex-direction: column; justify-content: center; min-height: 110px; }
+        .card.destaque { background-color: var(--cor-destaque); color: var(--cor-texto); }
+        .card.info { background-color: var(--cor-info); }
+        .card h3 { margin-bottom: 8px; font-size: 0.9em; font-weight: 600; opacity: 1; color: inherit; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { font-size: 1.9em; font-weight: bold; line-height: 1.2; }
+        .mensagem-feedback { padding: var(--padding-padrao); margin: 15px 0; border-radius: var(--borda-arredondada); text-align: center; font-weight: 500; display: none; border: 1px solid; }
+        .mensagem-feedback.sucesso { background-color: #d4edda; color: #155724; border-color: #c3e6cb; display: block; }
+        .mensagem-feedback.erro { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; display: block; }
+        .mensagem-feedback.info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; display: block; }
+        .filtros-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; padding: 12px; background-color: var(--cor-fundo-app); border-radius: var(--borda-arredondada); }
+        @media (min-width: 768px) { .filtros-container { flex-direction: row; align-items: center; flex-wrap: wrap;} }
+        .filtros-container label { margin-bottom: 0; font-size: 0.85em; }
+        .filtros-container input, .filtros-container select { margin-bottom: 0; width: auto; min-width: 140px; padding: 8px; font-size: 0.9em;}
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); animation: fadeInModal 0.3s ease-out; }
+        .modal-conteudo { background-color: var(--cor-fundo-container); margin: 8% auto; padding: 25px; border: 1px solid var(--cor-borda); width: 90%; max-width: 700px; border-radius: var(--borda-arredondada); box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; color: var(--cor-texto); }
+        .modal-fechar { color: var(--cor-texto); opacity: 0.7; position: absolute; top: 10px; right: 20px; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .modal-fechar:hover { opacity: 1; color: var(--cor-erro); }
+        @keyframes fadeInModal { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1;transform: translateY(0px);}}
+        .modal h2 { margin-top: 0; color: var(--cor-primaria); } .modal ul { list-style: inside; padding-left: 5px; margin-top:10px; }
+        .modal li { margin-bottom: 8px; } .modal p { margin-bottom: 10px; }
+        .theme-editor-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px; }
+        @media (min-width: 500px) { .theme-editor-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+        .theme-editor-grid .campo-grupo label { display: flex; align-items: center; justify-content: space-between; }
+        .theme-editor-grid input[type="color"] { width: 50px; height: 30px; padding: 0; margin-left: 10px; }
+        .cor-peca-preview { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 6px; border: 1px solid #ccc; vertical-align: middle; }
+        .modo-completo-item { display: none; } body.modo-completo .modo-completo-item { display: block; }
+        .modo-simples-item { display: block; } body.modo-completo .modo-simples-item { display: none; }
+        .grafico-barras-simples { display: flex; gap: 5px; align-items: flex-end; height: 150px; border-left: 2px solid var(--cor-borda); border-bottom: 2px solid var(--cor-borda); padding: 5px; margin-top:15px; overflow-x: auto; }
+        .grafico-barras-simples .barra { background-color: var(--cor-primaria); flex-shrink: 0; width: 40px; text-align: center; color: var(--cor-texto-claro); font-size: 0.7em; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 2px; }
+        .grafico-barras-simples .barra span { writing-mode: vertical-rl; text-orientation: mixed; white-space:nowrap; transform: rotate(180deg); margin-bottom: 5px; }
+        .btn-whatsapp { background-color: #25D366; } .btn-whatsapp:hover { background-color: #1DAE54; }
+        #page-footer { text-align: center; margin-top: 30px; padding: 15px 0; border-top: 1px solid var(--cor-borda); color: var(--cor-texto); opacity:0.7; font-size: 0.85em; }
+        #lista-processos-peca .processo-item { display: flex; gap: 10px; align-items: center; padding: 8px; border: 1px solid var(--cor-borda); margin-bottom: 8px; border-radius: calc(var(--borda-arredondada) - 4px); }
+        #lista-processos-peca .processo-item input[type="text"], #lista-processos-peca .processo-item input[type="number"] { margin-bottom: 0; flex-grow: 1; }
+        #lista-processos-peca .processo-item .btn-remover-processo-temp { padding: 6px 10px; font-size: 0.9em; line-height: 1; }
+
+        /* ESTILOS DE IMPRESSÃO MELHORADOS */
+        @media print {
+            body { padding: 0 !important; margin: 0 !important; font-size: 10pt; }
+            .nao-imprimir, .bottom-nav, .app-header-fixed, #page-footer, .btn-help, #mensagem-global, .filtros-container, #btn-adicionar-exemplos-tipos-peca, #form-producao button, #form-tipo-peca button, #form-cliente button, #form-contato-util button, #form-reparo button, #form-horas button, #form-anotacao button, #tabela-producao .btn-editar-producao, #tabela-producao .btn-excluir-producao, #tabela-producao .btn-toggle-pago, #tabela-producao .btn-share-whatsapp, /* Mantém o botão de comprovante, mas o JS vai lidar com ele */ #tabela-tipos-peca .btn, #tabela-clientes .btn, #tabela-contatos-uteis .btn, #tabela-reparos .btn, .btn-editar-peca-modelo, .btn-excluir-peca-modelo, .btn-editar-cliente, .btn-excluir-cliente, .btn-editar-contato-util, .btn-excluir-contato-util, .btn-editar-reparo, .btn-excluir-reparo, #form-configuracoes-nomes button, #config-modo-interface, #config-tema-predefinido, #editor-tema-personalizado, #btn-exportar-dados, #input-importar-dados, .btn-limpar-filtro-dashboard, .btn-limpar-filtros-producao, #filtro-relatorio-cliente, #filtro-relatorio-data-fim, #filtro-relatorio-data-inicio, #btn-gerar-relatorio-periodo  { display: none !important; }
+            .container-principal { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
+            .secao { box-shadow: none; border: none; margin-bottom: 10px; padding: 0;}
+            .tab-content { display: none !important; }
+            #comprovante-para-impressao-container { display: block !important; }
+            #comprovante-para-impressao, #comprovante-para-impressao * { visibility: visible !important; color: #000 !important; background-color: #fff !important; }
+            #comprovante-para-impressao { margin: 10mm; padding:0; font-size: 10pt; line-height: 1.4;}
+            #comprovante-para-impressao h1 { font-size: 16pt; margin-bottom: 15px; text-align: center; }
+            #comprovante-para-impressao h2 { font-size: 13pt; margin-top: 12px; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 3px;}
+            #comprovante-para-impressao h3 { font-size: 11pt; margin-top: 10px; margin-bottom: 6px; font-weight: bold; }
+            #comprovante-para-impressao p, #comprovante-para-impressao li { margin-bottom: 5px; }
+            #comprovante-para-impressao p strong { font-weight: bold; }
+            #comprovante-para-impressao ul { list-style: disc; padding-left: 20px; margin-top: 3px; }
+            #comprovante-para-impressao hr { border: none; border-top: 1px dashed #999; margin: 12px 0; }
+            #comprovante-para-impressao table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:9pt; }
+            #comprovante-para-impressao th, #comprovante-para-impressao td { border: 1px solid #666; padding: 5px; text-align: left; word-break: break-word;}
+            #comprovante-para-impressao th { background-color: #eaeaea; font-weight: bold; }
+            #rodape-comprovante { font-size: 8pt; text-align: center; margin-top: 15px; color: #444 !important; }
+            a[href^="http"]:after { content: ""; } a {text-decoration: none; color: inherit;}
+        }
+        .comprovante-container-hidden { display: none; }
+
+    </style>
+</head>
+<body class="modo-completo">
+    <div class="app-header-fixed">
+         <header id="app-main-header">
+            <h1 id="nome-atelie-header">Gestor de Ateliê</h1>
+            <p>Olá, <span id="nome-costureira-header">Costureira</span>! ❤️</p>
+        </header>
+        <div class="sub-header-fixed">
+            <h2 id="sub-header-titulo-aba">Painel</h2> <!-- Ícone removido, será pego do h2 da seção -->
+        </div>
+    </div>
+
+    <div class="container-principal">
+        <div id="mensagem-global" class="mensagem-feedback"></div>
+        <main id="main-content">
+            <!-- Tab: Dashboard -->
+            <div id="tab-dashboard" class="tab-content active">
+                <section class="secao">
+                    <h2>📊 Painel <button class="btn-help" data-help="dashboard">❓</button></h2>
+                    <div class="filtros-container">
+                        <label for="filtro-mes-dashboard">Mês/Ano:</label>
+                        <input type="month" id="filtro-mes-dashboard">
+                        <button class="btn btn-pequeno btn-info" id="btn-limpar-filtro-dashboard" title="Mês Atual">🔄 Atual</button>
+                    </div>
+                    <div class="dashboard-cards">
+                        <div class="card"><h3>Ganhos do Dia</h3><p id="dash-valor-card1">R$ 0,00</p></div>
+                        <div class="card destaque"><h3>Ganhos do Mês</h3><p id="dash-valor-card2">R$ 0,00</p></div>
+                        <div class="card"><h3>Total Recebido (Mês)</h3><p id="dash-valor-card3">R$ 0,00</p></div>
+                        <div class="card info"><h3>Total Pendente (Mês)</h3><p id="dash-valor-card4">R$ 0,00</p></div>
+                        <div class="card"><h3>Peças Produzidas (Mês)</h3><p id="dash-valor-card5">0</p></div>
+                        <div class="card"><h3>Horas Trabalhadas (Mês)</h3><p id="dash-valor-card6">0h</p></div>
+                    </div>
+                    <div class="modo-completo-item">
+                        <h3>📈 Ganhos Mensais (Últimos 6 Meses)</h3>
+                        <div id="grafico-ganhos-mensais" class="grafico-barras-simples"></div>
+                        <h3 style="margin-top:20px;">⭐ Peças Mais Produzidas (Mês)</h3>
+                        <ul id="lista-top-pecas" class="lista-simples"></ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab: Produção -->
+            <div id="tab-producao" class="tab-content">
+                <section class="secao">
+                    <h2>🧵 Nova Produção <button class="btn-help" data-help="producao-form">❓</button></h2>
+                     <form id="form-producao">
+                        <input type="hidden" id="producao-id">
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="prod-data">Data:</label><input type="date" id="prod-data" required></div>
+                            <div class="campo-grupo"><label for="prod-tipo-peca">Peça/Modelo Base:</label><select id="prod-tipo-peca" required></select></div>
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="prod-modelo-descricao">Descrição Detalhada (Item Específico):</label><input type="text" id="prod-modelo-descricao" placeholder="Ex: Renda frufru, Algodão cliente X"></div>
+                            <div class="campo-grupo"><label for="prod-cor-peca">Cor da Peça:</label><input type="text" id="prod-cor-peca" placeholder="Ex: Preto, Rosa Bebê, Estampado Floral"></div>
+                        </div>
+                         <div class="campo-grupo modo-completo-item">
+                            <label for="prod-cliente">Cliente (Opcional):</label>
+                            <select id="prod-cliente"><option value="">Nenhum cliente específico</option></select>
+                        </div>
+                        <div class="modo-completo-item">
+                            <h3>Processos Realizados:</h3>
+                            <div id="processos-para-producao" class="campo-grupo"><p class="info-text">Selecione Peça/Modelo Base.</p></div>
+                        </div>
+                         <div class="campo-grupo modo-simples-item">
+                            <label for="prod-valor-manual">Valor Total do Item (R$):</label>
+                            <input type="number" id="prod-valor-manual" step="0.01" placeholder="Para modo simples sem processos">
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="prod-quantidade">Quantidade:</label><input type="number" id="prod-quantidade" min="1" value="1" required></div>
+                            <div class="campo-grupo modo-completo-item">
+                                <label for="prod-valor-total-calculado">Valor Total Processos (R$):</label>
+                                <input type="text" id="prod-valor-total-calculado" readonly placeholder="Automático (Processos x Qtd)">
+                            </div>
+                        </div>
+                        <div class="campo-grupo modo-completo-item">
+                            <label for="prod-materiais">Materiais Utilizados (Opcional):</label>
+                            <textarea id="prod-materiais" placeholder="Ex: Linha XYZ cor A, Tecido ABC, 2m elástico Z..."></textarea>
+                        </div>
+                        <div class="campo-grupo"><label class="checkbox-label"><input type="checkbox" id="prod-pago"> Pagamento Recebido</label></div>
+                        <div class="campo-grupo"><label for="prod-observacoes">Observações:</label><textarea id="prod-observacoes"></textarea></div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Produção</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-limpar-form-prod" style="display:none;">Cancelar Edição</button>
+                    </form>
+                </section>
+                <section class="secao">
+                    <h2>📖 Histórico de Produção <button class="btn-help" data-help="producao-historico">❓</button></h2>
+                     <div class="filtros-container">
+                        <label for="filtro-mes-producao">Mês/Ano:</label><input type="month" id="filtro-mes-producao">
+                        <label for="filtro-status-pagamento">Status:</label>
+                        <select id="filtro-status-pagamento"><option value="todos">Todos</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+                        <button class="btn btn-pequeno btn-info" id="btn-limpar-filtros-producao">Limpar</button>
+                    </div>
+                    <div class="tabela-responsiva">
+                        <table id="tabela-producao">
+                            <thead>
+                                <tr>
+                                    <th class="col-data">Data</th>
+                                    <th class="col-peca">Peça Base/Cor</th>
+                                    <th class="modo-completo-item col-cliente">Cliente</th>
+                                    <th class="col-descricao">Descrição Detalhada</th>
+                                    <th class="col-qtd">Qtd</th>
+                                    <th class="modo-completo-item col-processos">Processos</th>
+                                    <th class="col-valor">Valor</th>
+                                    <th class="col-status">Status</th>
+                                    <th class="col-acoes">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-tabela-producao"></tbody>
+                        </table>
+                    </div>
+                    <p id="sem-producao-msg" class="mensagem-feedback info" style="display:none;">Nenhuma produção encontrada.</p>
+
+                    <h3 style="margin-top: 30px;">Gerar Relatório de Produção por Período</h3>
+                    <div class="filtros-container" id="filtros-relatorio-periodo">
+                        <div><label for="filtro-relatorio-data-inicio">Data Início:</label><input type="date" id="filtro-relatorio-data-inicio"></div>
+                        <div><label for="filtro-relatorio-data-fim">Data Fim:</label><input type="date" id="filtro-relatorio-data-fim"></div>
+                        <div class="modo-completo-item"><label for="filtro-relatorio-cliente">Cliente (Opcional):</label><select id="filtro-relatorio-cliente"><option value="">Todos os Clientes</option></select></div>
+                        <button class="btn btn-sucesso" id="btn-gerar-relatorio-periodo" style="padding: 8px 15px;"><span class="icon">🧾</span>Gerar Relatório</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab: Peças/Modelos -->
+            <div id="tab-pecas-modelos" class="tab-content">
+                 <section class="secao">
+                    <h2>✂️ Cadastrar Peça/Modelo <button class="btn-help" data-help="pecas-form">❓</button></h2>
+                    <form id="form-tipo-peca">
+                        <input type="hidden" id="tipo-peca-id-edit">
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="tipo-peca-nome">Nome da Peça/Modelo:</label><input type="text" id="tipo-peca-nome" placeholder="Ex: Sutiã Reforçado Alça Larga" required></div>
+                            <div class="campo-grupo" style="align-self: end;"><label class="checkbox-label"><input type="checkbox" id="tipo-peca-cobra-par"> Cobrado por Par</label></div>
+                        </div>
+                        <div class="modo-completo-item">
+                            <h3>Processos desta Peça/Modelo:</h3>
+                            <div id="lista-processos-peca"></div>
+                            <button type="button" class="btn btn-pequeno btn-info" id="btn-add-processo-peca" style="margin:5px 0 15px 0;">+ Processo</button>
+                        </div>
+                        <div class="campo-grupo modo-completo-item">
+                            <label for="tipo-peca-materiais">Materiais Padrão Sugeridos (Opcional):</label>
+                            <textarea id="tipo-peca-materiais" placeholder="Ex: Renda X, Microfibra Y, Bojo Z..."></textarea>
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Peça/Modelo</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-cancelar-edicao-tipo-peca" style="display:none;">Cancelar Edição</button>
+                    </form>
+                    <button class="btn btn-info btn-full-width" id="btn-adicionar-exemplos-tipos-peca" style="margin-top: 15px;">+ Adicionar Exemplos Iniciais</button>
+                </section>
+                <section class="secao">
+                    <h2>Peças/Modelos Cadastrados <button class="btn-help" data-help="pecas-lista">❓</button></h2>
+                    <div class="tabela-responsiva">
+                        <table id="tabela-tipos-peca">
+                            <thead><tr><th>Nome</th><th class="modo-completo-item">Processos (Valor Total)</th><th>Cobrado Por</th><th class="modo-completo-item">Materiais</th><th>Ações</th></tr></thead>
+                            <tbody id="corpo-tabela-tipos-peca"></tbody>
+                        </table>
+                    </div>
+                    <p id="sem-tipos-peca-msg" class="mensagem-feedback info" style="display:none;">Nenhuma peça/modelo cadastrado.</p>
+                </section>
+            </div>
+
+            <!-- Tab: Clientes -->
+            <div id="tab-clientes" class="tab-content">
+                  <section class="secao">
+                    <h2>👥 Cadastrar Cliente <button class="btn-help" data-help="clientes-form">❓</button></h2>
+                     <form id="form-cliente">
+                        <input type="hidden" id="cliente-id-edit">
+                        <div class="campo-grupo"><label for="cliente-nome">Nome Completo:</label><input type="text" id="cliente-nome" required></div>
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="cliente-telefone">Telefone/WhatsApp:</label><input type="tel" id="cliente-telefone" placeholder="(XX) XXXXX-XXXX"></div>
+                            <div class="campo-grupo"><label for="cliente-email">Email (Opcional):</label><input type="email" id="cliente-email"></div>
+                        </div>
+                        <div class="campo-grupo modo-completo-item"><label for="cliente-endereco">Endereço (Opcional):</label><textarea id="cliente-endereco" placeholder="Rua, Número, Bairro, Cidade..."></textarea></div>
+                        <div class="campo-grupo"><label for="cliente-observacoes">Observações (Preferências, etc.):</label><textarea id="cliente-observacoes"></textarea></div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Cliente</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-cancelar-edicao-cliente" style="display:none;">Cancelar Edição</button>
+                    </form>
+                </section>
+                <section class="secao">
+                    <h2>📋 Lista de Clientes <button class="btn-help" data-help="clientes-lista">❓</button></h2>
+                    <input type="text" id="filtro-clientes" placeholder="🔎 Buscar cliente por nome..." style="margin-bottom:15px;">
+                    <div class="tabela-responsiva">
+                        <table id="tabela-clientes">
+                            <thead><tr><th>Nome</th><th>Contato</th><th class="modo-completo-item">Observações</th><th>Ações</th></tr></thead>
+                            <tbody id="corpo-tabela-clientes"></tbody>
+                        </table>
+                    </div>
+                    <p id="sem-clientes-msg" class="mensagem-feedback info" style="display:none;">Nenhum cliente cadastrado.</p>
+                </section>
+            </div>
+
+            <!-- Tab: Contatos Úteis -->
+            <div id="tab-contatos" class="tab-content">
+                  <section class="secao">
+                     <h2>📞 Cadastrar Contato Útil <button class="btn-help" data-help="contatos-form">❓</button></h2>
+                     <form id="form-contato-util">
+                        <input type="hidden" id="contato-util-id-edit">
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="contato-util-nome">Nome:</label><input type="text" id="contato-util-nome" required></div>
+                            <div class="campo-grupo"><label for="contato-util-tipo">Tipo:</label>
+                                <select id="contato-util-tipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Fornecedor">Fornecedor</option><option value="Mecânico Máquina">Mecânico Máquina</option>
+                                    <option value="Entregador">Entregador</option><option value="Parceiro">Parceiro</option><option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="contato-util-telefone">Telefone/WhatsApp:</label><input type="tel" id="contato-util-telefone" placeholder="(XX) XXXXX-XXXX"></div>
+                            <div class="campo-grupo"><label for="contato-util-email">Email (Opcional):</label><input type="email" id="contato-util-email"></div>
+                        </div>
+                        <div class="campo-grupo"><label for="contato-util-observacoes">Observações (Serviços, etc.):</label><textarea id="contato-util-observacoes"></textarea></div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Contato</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-cancelar-edicao-contato-util" style="display:none;">Cancelar Edição</button>
+                     </form>
+                </section>
+                <section class="secao">
+                    <h2>📒 Lista de Contatos <button class="btn-help" data-help="contatos-lista">❓</button></h2>
+                    <input type="text" id="filtro-contatos" placeholder="🔎 Buscar contato..." style="margin-bottom:15px;">
+                    <div class="tabela-responsiva">
+                        <table id="tabela-contatos-uteis">
+                            <thead><tr><th>Nome</th><th>Tipo</th><th>Contato</th><th class="modo-completo-item">Observações</th><th>Ações</th></tr></thead>
+                            <tbody id="corpo-tabela-contatos-uteis"></tbody>
+                        </table>
+                    </div>
+                    <p id="sem-contatos-uteis-msg" class="mensagem-feedback info" style="display:none;">Nenhum contato útil cadastrado.</p>
+                </section>
+            </div>
+            
+            <!-- Tab: Reparos/Consertos -->
+            <div id="tab-reparos" class="tab-content">
+                  <section class="secao">
+                    <h2>🛠️ Registrar Reparo/Conserto <button class="btn-help" data-help="reparos-form">❓</button></h2>
+                     <form id="form-reparo">
+                        <input type="hidden" id="reparo-id">
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="reparo-data-entrada">Data Entrada:</label><input type="date" id="reparo-data-entrada" required></div>
+                            <div class="campo-grupo"><label for="reparo-origem-texto">Cliente/Origem:</label><input type="text" id="reparo-origem-texto" placeholder="Nome do cliente ou 'Produção Interna'"></div>
+                        </div>
+                        <div class="campo-grupo"><label for="reparo-descricao">Descrição Problema/Serviço:</label><textarea id="reparo-descricao"></textarea> </div>
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="reparo-valor">Valor (R$):</label><input type="number" id="reparo-valor" step="0.01" value="0"></div>
+                            <div class="campo-grupo"><label for="reparo-status">Status:</label>
+                                <select id="reparo-status"><option value="Pendente">Pendente</option><option value="Em Andamento">Em Andamento</option><option value="Concluído">Concluído</option><option value="Entregue">Entregue</option></select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Reparo</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-cancelar-edicao-reparo" style="display:none;">Cancelar Edição</button>
+                    </form>
+                </section>
+                <section class="secao">
+                    <h2>🔩 Histórico de Reparos <button class="btn-help" data-help="reparos-lista">❓</button></h2>
+                    <div class="tabela-responsiva">
+                        <table id="tabela-reparos">
+                            <thead><tr><th>Data</th><th>Origem</th><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+                            <tbody id="corpo-tabela-reparos"></tbody>
+                        </table>
+                    </div>
+                     <p id="sem-reparos-msg" class="mensagem-feedback info" style="display:none;">Nenhum reparo registrado.</p>
+                </section>
+            </div>
+
+            <!-- Tab: Configurações -->
+             <div id="tab-configuracoes" class="tab-content">
+                <section class="secao">
+                    <h2>⚙️ Configurações Gerais <button class="btn-help" data-help="config-geral">❓</button></h2>
+                    <form id="form-configuracoes-nomes">
+                        <div class="campo-grupo"><label for="config-nome-atelie">Nome Ateliê/Firma:</label><input type="text" id="config-nome-atelie"></div>
+                        <div class="campo-grupo"><label for="config-nome-costureira">Seu Nome:</label><input type="text" id="config-nome-costureira"></div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Nomes</button>
+                    </form>
+                     <div class="campo-grupo" style="margin-top:20px;">
+                        <label for="config-modo-interface">Modo da Interface:</label>
+                        <select id="config-modo-interface">
+                            <option value="completo">✨ Completo (Todas as Funcionalidades)</option>
+                            <option value="simples">👌 Simples (Foco no Essencial)</option>
+                        </select>
+                    </div>
+                </section>
+                <section class="secao">
+                    <h2>🎨 Editor de Tema Visual <button class="btn-help" data-help="config-tema">❓</button></h2>
+                    <div class="campo-grupo">
+                        <label for="config-tema-predefinido">Temas Predefinidos:</label>
+                        <select id="config-tema-predefinido">
+                            <option value="theme-classic-rose">Rosa Clássico</option><option value="theme-ocean-breeze">Brisa do Oceano</option>
+                            <option value="theme-forest-haven">Refúgio da Floresta</option><option value="theme-sunset-glow">Brilho do Pôr do Sol</option>
+                            <option value="theme-lavender-dream">Sonho de Lavanda</option><option value="theme-dark-mode">Modo Escuro</option>
+                            <option value="custom">✨ Personalizado ✨</option>
+                        </select>
+                    </div>
+                    <div id="editor-tema-personalizado" style="display:none;">
+                        <h3>Personalizar Cores (Prévia em tempo real):</h3>
+                        <div class="theme-editor-grid">
+                            <div class="campo-grupo"><label for="cor-primaria-picker">Cor Primária <input type="color" id="cor-primaria-picker"></label></div>
+                            <div class="campo-grupo"><label for="cor-secundaria-picker">Cor Secundária <input type="color" id="cor-secundaria-picker"></label></div>
+                            <div class="campo-grupo"><label for="cor-fundo-app-picker">Fundo App <input type="color" id="cor-fundo-app-picker"></label></div>
+                            <div class="campo-grupo"><label for="cor-fundo-container-picker">Fundo Conteúdo <input type="color" id="cor-fundo-container-picker"></label></div>
+                            <div class="campo-grupo"><label for="cor-texto-picker">Cor do Texto <input type="color" id="cor-texto-picker"></label></div>
+                            <div class="campo-grupo"><label for="cor-destaque-picker">Cor Destaque <input type="color" id="cor-destaque-picker"></label></div>
+                        </div>
+                        <button class="btn btn-sucesso btn-full-width" id="btn-salvar-tema-personalizado" style="margin-top:10px;"><span class="icon">💾</span>Salvar Tema Personalizado</button>
+                    </div>
+                </section>
+                <section class="secao modo-completo-item">
+                    <h2>⏰ Registrar Horas <button class="btn-help" data-help="horas">❓</button></h2>
+                    <form id="form-horas">
+                        <div class="grid-2-col">
+                            <div class="campo-grupo"><label for="horas-data">Data:</label><input type="date" id="horas-data" required></div>
+                            <div class="campo-grupo"><label for="horas-quantidade">Horas Trabalhadas:</label><input type="number" id="horas-quantidade" step="0.1" min="0.1" required></div>
+                        </div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Registrar Horas</button>
+                    </form>
+                    <h3 style="margin-top:20px;">Registro de Horas (Mês)</h3>
+                    <div class="filtros-container"><label for="filtro-mes-horas">Mês/Ano:</label><input type="month" id="filtro-mes-horas"></div>
+                    <ul id="lista-horas-registradas" class="lista-simples"></ul>
+                    <p id="sem-horas-msg" class="mensagem-feedback info" style="display:none;">Nenhuma hora neste mês.</p>
+                    <h4>Total Horas Mês: <span id="total-horas-mes" style="color: var(--cor-primaria);">0h</span></h4>
+                </section>
+                 <section class="secao modo-completo-item">
+                    <h2>📝 Anotações Rápidas <button class="btn-help" data-help="anotacoes">❓</button></h2>
+                    <form id="form-anotacao">
+                        <input type="hidden" id="anotacao-id">
+                        <div class="campo-grupo"><label for="anotacao-titulo">Título (Opcional):</label><input type="text" id="anotacao-titulo"></div>
+                        <div class="campo-grupo"><label for="anotacao-conteudo">Anotação:</label><textarea id="anotacao-conteudo"></textarea></div>
+                        <button type="submit" class="btn btn-sucesso btn-full-width"><span class="icon">💾</span>Salvar Anotação</button>
+                        <button type="button" class="btn btn-secundario btn-full-width" id="btn-cancelar-edicao-anotacao" style="display:none;">Cancelar</button>
+                    </form>
+                    <h3 style="margin-top:20px;">Suas Anotações</h3>
+                    <div id="lista-anotacoes"></div>
+                    <p id="sem-anotacoes-msg" class="mensagem-feedback info" style="display:none;">Nenhuma anotação.</p>
+                </section>
+                <section class="secao">
+                    <h2>🗃️ Gerenciamento de Dados <button class="btn-help" data-help="config-dados">❓</button></h2>
+                    <p>Faça backups regulares dos seus dados para segurança.</p>
+                    <div class="grid-2-col" style="margin-top:10px;">
+                        <button class="btn btn-info btn-full-width" id="btn-exportar-dados"><span class="icon">📤</span>Exportar Dados</button>
+                        <div>
+                            <label for="input-importar-dados" class="btn btn-aviso btn-full-width" style="display:flex; text-align:center;"><span class="icon">📥</span>Importar (Substitui!)</label>
+                            <input type="file" id="input-importar-dados" accept=".json" style="display:none;">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer id="page-footer">
+            <p>&copy; <span id="ano-atual"></span> <span id="footer-nome-atelie">Seu Ateliê</span>. Feito com amor e carinho!</p>
+        </footer>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="bottom-nav-item active" data-tab="tab-dashboard" title="Painel"><span class="icon">📊</span>Painel</button>
+        <button class="bottom-nav-item" data-tab="tab-producao" title="Produção"><span class="icon">🧵</span>Produção</button>
+        <button class="bottom-nav-item" data-tab="tab-pecas-modelos" title="Modelos"><span class="icon">✂️</span>Modelos</button>
+        <button class="bottom-nav-item" data-tab="tab-clientes" title="Clientes"><span class="icon">👥</span>Clientes</button>
+        <button class="bottom-nav-item" data-tab="tab-contatos" title="Contatos"><span class="icon">📞</span>Contatos</button>
+        <button class="bottom-nav-item" data-tab="tab-reparos" title="Reparos"><span class="icon">🛠️</span>Reparos</button>
+        <button class="bottom-nav-item" data-tab="tab-configuracoes" title="Ajustes"><span class="icon">⚙️</span>Ajustes</button>
+    </nav>
+
+    <div id="modal-ajuda" class="modal">
+        <div class="modal-conteudo">
+            <span class="modal-fechar" id="modal-ajuda-fechar">&times;</span>
+            <h2 id="modal-ajuda-titulo">Ajuda</h2>
+            <div id="modal-ajuda-conteudo"><p>Conteúdo da ajuda aqui...</p></div>
+        </div>
+    </div>
+
+    <!-- Container para impressão, permanece oculto -->
+    <div id="comprovante-para-impressao-container" class="comprovante-container-hidden" aria-hidden="true"></div>
+
+
+    <script>
+    // SCRIPT JS COMPLETO E CORRIGIDO (COPIAR TODO O SCRIPT DA VERSÃO ANTERIOR E COLAR AQUI)
+    // As correções de emoji e botões de ajuda serão feitas dentro deste script.
+    // E a nova função de Relatório por Período será adicionada.
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("App Ateliê Gestor Pro - vFinal com Correções FINAIS V - JS Iniciado");
+
+        // --- ELEMENTOS GLOBAIS DO DOM ---
+        const appTitle = document.getElementById('app-title');
+        const nomeAtelieHeader = document.getElementById('nome-atelie-header');
+        const nomeCostureiraHeader = document.getElementById('nome-costureira-header');
+        const footerNomeAtelie = document.getElementById('footer-nome-atelie');
+        const anoAtualEl = document.getElementById('ano-atual');
+        const mensagemGlobalEl = document.getElementById('mensagem-global');
+        const mainContentEl = document.getElementById('main-content');
+        const bodyEl = document.body;
+        const appHeaderFixedEl = document.querySelector('.app-header-fixed'); 
+        const subHeaderTituloAbaEl = document.getElementById('sub-header-titulo-aba');
+        const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const modalAjuda = document.getElementById('modal-ajuda');
+        const modalAjudaFechar = document.getElementById('modal-ajuda-fechar');
+        const modalAjudaTitulo = document.getElementById('modal-ajuda-titulo');
+        const modalAjudaConteudo = document.getElementById('modal-ajuda-conteudo');
+        // const botoesAjuda = document.querySelectorAll('.btn-help'); // Atribuição movida para reatribuirListenersBotoesAjuda
+
+        const dashValorCard1 = document.getElementById('dash-valor-card1');
+        const dashValorCard2 = document.getElementById('dash-valor-card2');
+        const dashValorCard3 = document.getElementById('dash-valor-card3');
+        const dashValorCard4 = document.getElementById('dash-valor-card4');
+        const dashValorCard5 = document.getElementById('dash-valor-card5');
+        const dashValorCard6 = document.getElementById('dash-valor-card6');
+        const filtroMesDashboard = document.getElementById('filtro-mes-dashboard');
+        const btnLimparFiltroDashboard = document.getElementById('btn-limpar-filtro-dashboard');
+        const graficoGanhosMensaisDiv = document.getElementById('grafico-ganhos-mensais');
+        const listaTopPecasUl = document.getElementById('lista-top-pecas');
+        const formProducao = document.getElementById('form-producao');
+        const producaoIdInput = document.getElementById('producao-id');
+        const prodDataInput = document.getElementById('prod-data');
+        const prodPecaModeloSelect = document.getElementById('prod-tipo-peca');
+        const prodModeloDescricaoInput = document.getElementById('prod-modelo-descricao');
+        const prodCorPecaInput = document.getElementById('prod-cor-peca');
+        const prodClienteSelect = document.getElementById('prod-cliente');
+        const processosParaProducaoDiv = document.getElementById('processos-para-producao');
+        const prodValorManualInput = document.getElementById('prod-valor-manual');
+        const prodQuantidadeInput = document.getElementById('prod-quantidade');
+        const prodValorTotalCalculadoInput = document.getElementById('prod-valor-total-calculado');
+        const prodMateriaisTextarea = document.getElementById('prod-materiais');
+        const prodPagoCheckbox = document.getElementById('prod-pago');
+        const prodObservacoesTextarea = document.getElementById('prod-observacoes');
+        const btnLimparFormProd = document.getElementById('btn-limpar-form-prod');
+        const corpoTabelaProducao = document.getElementById('corpo-tabela-producao');
+        const semProducaoMsg = document.getElementById('sem-producao-msg');
+        const filtroMesProducao = document.getElementById('filtro-mes-producao');
+        const filtroStatusPagamento = document.getElementById('filtro-status-pagamento');
+        const btnLimparFiltrosProducao = document.getElementById('btn-limpar-filtros-producao');
+        const formPecaModelo = document.getElementById('form-tipo-peca');
+        const pecaModeloIdEditInput = document.getElementById('tipo-peca-id-edit');
+        const pecaModeloNomeInput = document.getElementById('tipo-peca-nome');
+        const pecaModeloCobraParCheckbox = document.getElementById('tipo-peca-cobra-par');
+        const listaProcessosPecaDiv = document.getElementById('lista-processos-peca');
+        const btnAddProcessoPeca = document.getElementById('btn-add-processo-peca');
+        const pecaModeloMateriaisTextarea = document.getElementById('tipo-peca-materiais');
+        const corpoTabelaPecasModelos = document.getElementById('corpo-tabela-tipos-peca');
+        const semPecasModelosMsg = document.getElementById('sem-tipos-peca-msg');
+        const btnCancelarEdicaoPecaModelo = document.getElementById('btn-cancelar-edicao-tipo-peca');
+        const btnAdicionarExemplosPecasModelos = document.getElementById('btn-adicionar-exemplos-tipos-peca');
+        const formCliente = document.getElementById('form-cliente');
+        const clienteIdEditInput = document.getElementById('cliente-id-edit');
+        const clienteNomeInput = document.getElementById('cliente-nome');
+        const clienteTelefoneInput = document.getElementById('cliente-telefone');
+        const clienteEmailInput = document.getElementById('cliente-email');
+        const clienteEnderecoTextarea = document.getElementById('cliente-endereco');
+        const clienteObservacoesTextarea = document.getElementById('cliente-observacoes');
+        const btnCancelarEdicaoCliente = document.getElementById('btn-cancelar-edicao-cliente');
+        const tabelaClientesBody = document.getElementById('corpo-tabela-clientes');
+        const semClientesMsg = document.getElementById('sem-clientes-msg');
+        const filtroClientesInput = document.getElementById('filtro-clientes');
+        const formContatoUtil = document.getElementById('form-contato-util');
+        const contatoUtilIdEditInput = document.getElementById('contato-util-id-edit');
+        const contatoUtilNomeInput = document.getElementById('contato-util-nome');
+        const contatoUtilTipoSelect = document.getElementById('contato-util-tipo');
+        const contatoUtilTelefoneInput = document.getElementById('contato-util-telefone');
+        const contatoUtilEmailInput = document.getElementById('contato-util-email');
+        const contatoUtilObservacoesTextarea = document.getElementById('contato-util-observacoes');
+        const btnCancelarEdicaoContatoUtil = document.getElementById('btn-cancelar-edicao-contato-util');
+        const tabelaContatosUteisBody = document.getElementById('corpo-tabela-contatos-uteis');
+        const semContatosUteisMsg = document.getElementById('sem-contatos-uteis-msg');
+        const filtroContatosInput = document.getElementById('filtro-contatos');
+        const formReparo = document.getElementById('form-reparo');
+        const reparoIdInput = document.getElementById('reparo-id');
+        const reparoDataEntradaInput = document.getElementById('reparo-data-entrada');
+        const reparoOrigemTextoInput = document.getElementById('reparo-origem-texto');
+        const reparoDescricaoTextarea = document.getElementById('reparo-descricao');
+        const reparoValorInput = document.getElementById('reparo-valor');
+        const reparoStatusSelect = document.getElementById('reparo-status');
+        const btnCancelarEdicaoReparo = document.getElementById('btn-cancelar-edicao-reparo');
+        const corpoTabelaReparos = document.getElementById('corpo-tabela-reparos');
+        const semReparosMsg = document.getElementById('sem-reparos-msg');
+        const formConfiguracoesNomesEl = document.getElementById('form-configuracoes-nomes');
+        const configNomeAtelieInput = document.getElementById('config-nome-atelie');
+        const configNomeCostureiraInput = document.getElementById('config-nome-costureira');
+        const configModoInterfaceSelect = document.getElementById('config-modo-interface');
+        const configTemaPredefinidoSelect = document.getElementById('config-tema-predefinido');
+        const editorTemaPersonalizadoDiv = document.getElementById('editor-tema-personalizado');
+        const btnSalvarTemaPersonalizado = document.getElementById('btn-salvar-tema-personalizado');
+        const colorPickers = { primaria: document.getElementById('cor-primaria-picker'), secundaria: document.getElementById('cor-secundaria-picker'), fundoApp: document.getElementById('cor-fundo-app-picker'), fundoContainer: document.getElementById('cor-fundo-container-picker'), texto: document.getElementById('cor-texto-picker'), destaque: document.getElementById('cor-destaque-picker'), };
+        const formHoras = document.getElementById('form-horas');
+        const horasDataInput = document.getElementById('horas-data');
+        const horasQuantidadeInput = document.getElementById('horas-quantidade');
+        const listaHorasRegistradasUl = document.getElementById('lista-horas-registradas');
+        const semHorasMsg = document.getElementById('sem-horas-msg');
+        const totalHorasMesSpan = document.getElementById('total-horas-mes');
+        const filtroMesHoras = document.getElementById('filtro-mes-horas');
+        const formAnotacao = document.getElementById('form-anotacao');
+        const anotacaoIdInput = document.getElementById('anotacao-id');
+        const anotacaoTituloInput = document.getElementById('anotacao-titulo');
+        const anotacaoConteudoTextarea = document.getElementById('anotacao-conteudo');
+        const btnCancelarEdicaoAnotacao = document.getElementById('btn-cancelar-edicao-anotacao');
+        const listaAnotacoesDiv = document.getElementById('lista-anotacoes');
+        const semAnotacoesMsg = document.getElementById('sem-anotacoes-msg');
+        const btnExportarDados = document.getElementById('btn-exportar-dados');
+        const inputImportarDados = document.getElementById('input-importar-dados');
+        const comprovanteContainerHidden = document.getElementById('comprovante-para-impressao-container');
+
+        // Relatório por Período
+        const filtroRelatorioDataInicio = document.getElementById('filtro-relatorio-data-inicio');
+        const filtroRelatorioDataFim = document.getElementById('filtro-relatorio-data-fim');
+        const filtroRelatorioCliente = document.getElementById('filtro-relatorio-cliente');
+        const btnGerarRelatorioPeriodo = document.getElementById('btn-gerar-relatorio-periodo');
+
+
+        // --- ESTADO DA APLICAÇÃO ---
+        let appData = {
+            configuracoes: {
+                nomeAtelie: "Meu Ateliê de Costura", nomeCostureira: "Costureira Estrela",
+                temaPredefinido: "theme-classic-rose",
+                temaPersonalizado: { primaria: '#E91E63', secundaria: '#AD1457', fundoApp: '#F4F6F9', fundoContainer: '#FFFFFF', texto: '#343A40', destaque: '#FFC107' },
+                modoInterface: "completo"
+            },
+            pecasModelos: [], producoes: [], clientes: [], contatosUteis: [], reparos: [], horasTrabalhadas: [], anotacoes: []
+        };
+        
+        // --- CONTEÚDO DE AJUDA ---
+        const conteudosAjuda = {
+            'dashboard': `<h3>Dashboard</h3><p>Visão geral do seu ateliê: ganhos, peças e horas.</p><ul><li><strong>Ganhos do Dia:</strong> Soma das produções de hoje.</li><li><strong>Ganhos do Mês:</strong> Soma das produções do mês filtrado.</li><li><strong>Total Recebido (Mês):</strong> Produções PAGAS no mês.</li><li><strong>Total Pendente (Mês):</strong> Produções NÃO PAGAS no mês.</li><li><strong>Peças Produzidas (Mês):</strong> Quantidade de peças no mês.</li><li><strong>Horas Trabalhadas (Mês):</strong> Total de horas no mês (Modo Completo).</li></ul><p>Use o filtro "Mês/Ano". "🔄 Atual" volta para o mês corrente.</p><p class="modo-completo-item">No <strong>Modo Completo</strong>, veja gráficos e top peças.</p>`,
+            'producao-form': `<h3>Nova Produção</h3><p>Registre cada trabalho realizado:</p><ul><li><strong>Data:</strong> Data em que a produção foi feita (obrigatório).</li><li><strong>Peça/Modelo Base:</strong> Selecione um modelo previamente cadastrado (obrigatório).</li><li><strong>Descrição Detalhada:</strong> Especifique detalhes únicos desta produção (opcional).</li><li><strong>Cor da Peça:</strong> (Opcional).</li><li><strong>Cliente (Opcional):</strong> Vincule a um cliente cadastrado (Modo Completo).</li><li><strong>Processos Realizados:</strong> Marque as etapas de costura que você fez (Modo Completo). Valor calculado.</li><li><strong>Valor Total (Modo Simples):</strong> Se estiver no Modo Simples, informe o valor total do item aqui se não usar processos.</li><li><strong>Quantidade:</strong> Número de peças idênticas neste lote (obrigatório, min 1).</li><li><strong>Materiais Utilizados (Opcional):</strong> Anote insumos (Modo Completo).</li><li><strong>Pagamento Recebido.</strong></li><li><strong>Observações (Opcional).</strong></li></ul><p>Clique em "Salvar Produção". Para editar, use o botão na lista de Histórico.</p>`,
+            'producao-historico': `<h3>Histórico de Produção</h3><p>Veja todas as suas produções registradas.</p><ul><li>Use os filtros de "Mês/Ano" e "Status de Pagamento" para refinar a busca.</li><li><strong>Ações:</strong><ul><li><strong>Botão de Status (Pago/Pendente):</strong> Clique para alternar.</li><li><strong>✏️ Editar:</strong> Abre o formulário para modificar.</li><li><strong>🗑️ Excluir:</strong> Remove o registro (cuidado!).</li><li><strong>🧾 Comprov.:</strong> Gera um comprovante para impressão/PDF da produção individual.</li><li><strong>💬 Zap:</strong> Compartilha um resumo da produção individual no WhatsApp.</li></ul></li><li><strong>Gerar Relatório por Período:</strong> Use os campos de data e cliente (opcional) abaixo da tabela e clique em "Gerar Relatório" para um PDF com todas as produções do período selecionado.</li></ul>`,
+            'pecas-form': `<h3>Cadastrar Peça/Modelo</h3><p>Defina os modelos de peças que você costuma produzir.</p><ul><li><strong>Nome da Peça/Modelo:</strong> Um nome claro e descritivo (obrigatório).</li><li><strong>Cobrado por Par.</strong></li><li class="modo-completo-item"><strong>Processos:</strong> Adicione etapas e valores.</li><li class="modo-completo-item"><strong>Materiais Padrão (Opcional).</strong></li></ul><p>"+ Adicionar Exemplos Iniciais" cadastra modelos comuns.</p>`,
+            'pecas-lista': `<h3>Peças/Modelos Cadastrados</h3><p>Lista de todos os seus modelos e peças padrão.</p><ul><li><strong>Ações:</strong> Editar (✏️), Excluir (🗑️).</li></ul>`,
+            'clientes-form': `<h3>Cadastrar Cliente</h3><p>Mantenha um registro dos seus clientes.</p><ul><li><strong>Nome Completo</strong> (obrigatório).</li><li><strong>Telefone/WhatsApp</strong> (opcional).</li><li><strong>Email</strong> (opcional).</li><li class="modo-completo-item"><strong>Endereço</strong> (opcional).</li><li><strong>Observações</strong> (opcional).</li></ul>`,
+            'clientes-lista': `<h3>Lista de Clientes</h3><p>Todos os seus clientes cadastrados.</p><ul><li>Use o campo "Buscar cliente".</li><li><strong>Ações:</strong> WhatsApp (📞), Editar (✏️), Excluir (🗑️).</li></ul>`,
+            'contatos-form': `<h3>Cadastrar Contato Útil</h3><p>Guarde informações de fornecedores, mecânicos, etc.</p><ul><li><strong>Nome</strong> (obrigatório) e <strong>Tipo</strong> (obrigatório).</li><li><strong>Telefone/WhatsApp</strong> (opcional) e <strong>Email</strong> (opcional).</li><li><strong>Observações</strong> (opcional).</li></ul>`,
+            'contatos-lista': `<h3>Lista de Contatos</h3><p>Seus contatos importantes organizados.</p><ul><li>Use o campo "Buscar contato".</li><li><strong>Ações:</strong> WhatsApp (📞), Editar (✏️), Excluir (🗑️).</li></ul>`,
+            'reparos-form': `<h3>Registrar Reparo/Conserto</h3><p>Anote peças que precisam de ajuste ou foram refeitas.</p><ul><li><strong>Data Entrada</strong> (obrigatório).</li><li><strong>Origem</strong> (opcional).</li><li><strong>Descrição</strong> (opcional).</li><li><strong>Valor Cobrado.</strong></li><li><strong>Status.</strong></li></ul>`,
+            'reparos-lista': `<h3>Histórico de Reparos</h3><p>Todos os reparos e consertos.</p><ul><li><strong>Ações:</strong> Editar (✏️), Excluir (🗑️).</li></ul>`,
+            'config-geral': `<h3>Configurações Gerais</h3><ul><li><strong>Nome Ateliê/Firma e Seu Nome:</strong> Personalizam o app.</li><li><strong>Modo da Interface:</strong><ul><li><strong>✨ Completo:</strong> Todas as funcionalidades.</li><li><strong>👌 Simples:</strong> Foco no essencial.</li></ul><p>A mudança atualiza a interface.</p></li></ul>`,
+            'config-tema': `<h3>Editor de Tema Visual</h3><p>Deixe o app com a sua cara!</p><ul><li><strong>Temas Predefinidos.</strong></li><li><strong>✨ Personalizado ✨:</strong> Habilita seletores de cores. Cores aplicadas em <strong>tempo real</strong>. Salve suas escolhas.</li></ul>`,
+            'horas': `<h3>Registrar Horas Trabalhadas</h3><p>(Modo Completo)</p><p>Anote suas horas de trabalho.</p><ul><li>Selecione <strong>Data</strong> e informe <strong>Horas</strong> (obrigatórios).</li><li>Resumo no Dashboard.</li></ul>`,
+            'anotacoes': `<h3>Anotações Rápidas</h3><p>(Modo Completo)</p><p>Lembretes, ideias, listas.</p><ul><li>Adicione <strong>Título (Opcional)</strong> e <strong>Conteúdo</strong> (pelo menos um dos dois).</li></ul>`,
+            'config-dados': `<h3>Gerenciamento de Dados</h3><p>Cuide bem dos seus dados!</p><ul><li><strong>📤 Exportar Dados:</strong> Cria backup (JSON). Faça regularmente!</li><li><strong>📥 Importar Dados:</strong> Restaura de backup. <strong>ATENÇÃO:</strong> Substitui dados atuais!</li></ul>`
+        };
+
+        // --- FUNÇÕES UTILITÁRIAS ---
+        const formatarMoeda = (valor = 0) => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatarData = (dataStr) => { if (!dataStr || dataStr.length < 10) return ''; const [y,m,d] = dataStr.split('-'); return `${d}/${m}/${y}`;};
+        const hojeFormatado = () => new Date().toISOString().split('T')[0];
+        const mesAnoAtualFormatado = () => new Date().toISOString().slice(0, 7);
+        const hexToRgba = (hex, alpha) => { if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return `rgba(0,0,0,${alpha})`; const r = parseInt(hex.slice(1, 3), 16); const g = parseInt(hex.slice(3, 5), 16); const b = parseInt(hex.slice(5, 7), 16); if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(0,0,0,${alpha})`; return `rgba(${r}, ${g}, ${b}, ${alpha})`; };
+        const validarCorCSS = (corString) => { if (!corString) return null; if (/^(#([0-9a-f]{3}){1,2}|(rgb|hsl)a?\([0-9.,\s%]+\)|[a-z]+)$/i.test(corString.trim())) return corString.trim(); return null; };
+        function mostrarMensagemGlobal(texto, tipo = 'sucesso', duracao = 3500) { mensagemGlobalEl.textContent = texto; mensagemGlobalEl.className = `mensagem-feedback ${tipo}`; mensagemGlobalEl.style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { mensagemGlobalEl.style.display = 'none'; mensagemGlobalEl.textContent = ''; }, duracao); }
+
+        // --- NAVEGAÇÃO E ABAS ---
+        bottomNavItems.forEach(item => { 
+            item.addEventListener('click', () => { 
+                bottomNavItems.forEach(i => i.classList.remove('active')); 
+                item.classList.add('active'); 
+                tabContents.forEach(content => content.classList.remove('active')); 
+                const activeTab = document.getElementById(item.dataset.tab); 
+                if (activeTab) { 
+                    activeTab.classList.add('active'); 
+                    const h2Secao = activeTab.querySelector('.secao h2');
+                    let tituloFinalAba = item.title || item.textContent.replace(item.querySelector('.icon')?.textContent || '', '').trim(); 
+                    if (h2Secao) {
+                        const cloneH2 = h2Secao.cloneNode(true);
+                        const btnHelpClone = cloneH2.querySelector('.btn-help');
+                        if (btnHelpClone) cloneH2.removeChild(btnHelpClone);
+                        const iconeNoH2 = cloneH2.textContent.match(/^(\S+\s)/); // Pega o primeiro "bloco" (ícone + espaço)
+                        tituloFinalAba = iconeNoH2 ? cloneH2.textContent.trim() : `${item.querySelector('.icon')?.textContent || ''} ${cloneH2.textContent.trim()}`;
+                    }
+                    subHeaderTituloAbaEl.textContent = tituloFinalAba;
+                } 
+                if (item.dataset.tab === "tab-dashboard") renderizarDashboard();
+                if (item.dataset.tab === "tab-producao") { renderizarTabelaProducao(); popularSelectClientesRelatorio(); } // Popula select de clientes para relatório
+                if (item.dataset.tab === "tab-pecas-modelos") renderizarTabelaPecasModelos();
+                if (item.dataset.tab === "tab-clientes") renderizarTabelaClientes();
+                if (item.dataset.tab === "tab-contatos") renderizarTabelaContatosUteis();
+                if (item.dataset.tab === "tab-reparos") renderizarTabelaReparos();
+                if (item.dataset.tab === "tab-configuracoes" && appData.configuracoes.modoInterface === 'completo') {
+                    renderizarHorasTrabalhadas(); renderizarAnotacoes();
+                }
+            }); 
+        });
+        window.addEventListener('scroll', () => { if (window.scrollY > 30) { bodyEl.classList.add('scrolled'); } else { bodyEl.classList.remove('scrolled'); } });
+
+        // --- MODAL DE AJUDA ---
+        function abrirModalAjuda(chaveAjuda) {
+            const conteudo = conteudosAjuda[chaveAjuda];
+            if (conteudo) {
+                const btnAjuda = document.querySelector(`.btn-help[data-help="${chaveAjuda}"]`);
+                const h2Secao = btnAjuda?.closest('.secao')?.querySelector('h2');
+                let tituloModal = "Ajuda";
+                if(h2Secao) {
+                    const h2Clone = h2Secao.cloneNode(true);
+                    const btnHelpClone = h2Clone.querySelector('.btn-help');
+                    if(btnHelpClone) h2Clone.removeChild(btnHelpClone);
+                    tituloModal = `Ajuda: ${h2Clone.textContent.trim().replace(/^(\S+\s)/, '')}`; // Remove possível ícone do início
+                } else {
+                    const abaAtivaElement = document.querySelector('.bottom-nav-item.active');
+                    if(abaAtivaElement) {
+                         tituloModal = `Ajuda: ${abaAtivaElement.title || abaAtivaElement.textContent.replace(abaAtivaElement.querySelector('.icon')?.textContent || '', '').trim()}`;
+                    }
+                }
+                modalAjudaTitulo.textContent = tituloModal;
+                let cP = conteudo; 
+                if (appData.configuracoes.modoInterface === 'simples') { cP = cP.replace(/class="modo-completo-item"/g, 'style="display:none;"'); } else { cP = cP.replace(/class="modo-completo-item"/g, ''); } 
+                modalAjudaConteudo.innerHTML = cP; 
+                modalAjuda.style.display = 'block'; 
+            } else { 
+                console.warn("Conteúdo de ajuda não encontrado para:", chaveAjuda);
+                mostrarMensagemGlobal(`Ajuda para "${chaveAjuda}" não encontrada.`, 'erro');
+            }
+        }
+        function handleCliqueBotaoAjuda(e) {
+            e.stopPropagation(); 
+            abrirModalAjuda(e.currentTarget.dataset.help);
+        }
+        function reatribuirListenersBotoesAjuda() {
+            document.querySelectorAll('.btn-help').forEach(btn => {
+                btn.removeEventListener('click', handleCliqueBotaoAjuda); 
+                btn.addEventListener('click', handleCliqueBotaoAjuda);
+            });
+        }
+        modalAjudaFechar.addEventListener('click', () => modalAjuda.style.display = 'none');
+        window.addEventListener('click', (event) => { if (event.target == modalAjuda) modalAjuda.style.display = 'none'; });
+
+        // --- PERSISTÊNCIA DE DADOS ---
+        function salvarDados() { localStorage.setItem('atelieAppData_vFinalCorrigidoIV', JSON.stringify(appData)); }
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('atelieAppData_vFinalCorrigidoIV');
+            const defaultConfig = { nomeAtelie: "Meu Ateliê", nomeCostureira: "Costureira", temaPredefinido: "theme-classic-rose", temaPersonalizado: { primaria: '#E91E63', secundaria: '#AD1457', fundoApp: '#F4F6F9', fundoContainer: '#FFFFFF', texto: '#343A40', destaque: '#FFC107' }, modoInterface: "completo" };
+            if (dadosSalvos) { try { const parsedData = JSON.parse(dadosSalvos); const mergedConfig = { ...defaultConfig, ...(parsedData.configuracoes || {}) }; mergedConfig.temaPersonalizado = { ...defaultConfig.temaPersonalizado, ...((parsedData.configuracoes || {}).temaPersonalizado || {}) }; appData = { ...{pecasModelos: [], producoes: [], clientes: [], contatosUteis: [], reparos: [], horasTrabalhadas: [], anotacoes: []}, ...parsedData, configuracoes: mergedConfig }; } catch(e) { console.error("Erro ao parsear dados salvos:", e); appData.configuracoes = defaultConfig; } } else { appData.configuracoes = defaultConfig; }
+            aplicarModoInterface(); aplicarTema(); preencherFormConfiguracoesNomes(); preencherFormConfigTema(); preencherSeletorModoInterface();
+        }
+
+        // --- GERENCIAMENTO DE TEMA E MODO DE INTERFACE ---
+        // (Lógica completa da versão anterior)
+         function aplicarModoInterface() { if (appData.configuracoes.modoInterface === 'simples') { bodyEl.classList.remove('modo-completo'); bodyEl.classList.add('modo-simples'); } else { bodyEl.classList.remove('modo-simples'); bodyEl.classList.add('modo-completo'); } const vMP = prodValorManualInput?.closest('.campo-grupo'); const pPD = processosParaProducaoDiv; const vTCP = prodValorTotalCalculadoInput?.closest('.campo-grupo'); if (vMP && pPD && vTCP) { if (appData.configuracoes.modoInterface === 'simples') { vMP.style.display = 'block'; pPD.style.display = 'none'; vTCP.style.display = 'none'; } else { vMP.style.display = 'none'; pPD.style.display = 'block'; vTCP.style.display = 'block'; } } }
+        function preencherSeletorModoInterface() { configModoInterfaceSelect.value = appData.configuracoes.modoInterface; }
+        configModoInterfaceSelect.addEventListener('change', (e) => { appData.configuracoes.modoInterface = e.target.value; aplicarModoInterface(); salvarDados(); mostrarMensagemGlobal(`Modo da interface: ${e.target.value === 'simples' ? 'Simples' : 'Completo'}.`, 'info'); const aT = document.querySelector('.tab-content.active'); if(aT){ const nIA = document.querySelector(`.bottom-nav-item[data-tab="${aT.id}"]`); if(nIA) nIA.click(); } });
+        function aplicarTema() { const { temaPredefinido, temaPersonalizado, nomeAtelie, nomeCostureira } = appData.configuracoes; const rS = document.documentElement.style; bodyEl.className = bodyEl.className.replace(/theme-\w+/g, '').trim(); if(appData.configuracoes.modoInterface === 'simples') bodyEl.classList.add('modo-simples'); else bodyEl.classList.add('modo-completo'); const aC = (c) => { rS.setProperty('--cor-primaria', c.primaria); rS.setProperty('--cor-secundaria', c.secundaria); rS.setProperty('--cor-fundo-app', c.fundoApp); rS.setProperty('--cor-fundo-container', c.fundoContainer); rS.setProperty('--cor-texto', c.texto); rS.setProperty('--cor-destaque', c.destaque); }; if (temaPredefinido === 'custom' && temaPersonalizado) { aC(temaPersonalizado); } else if (temaPredefinido) { bodyEl.classList.add(temaPredefinido); ['--cor-primaria', '--cor-secundaria', '--cor-fundo-app', '--cor-fundo-container', '--cor-texto', '--cor-destaque'].forEach(v => rS.removeProperty(v)); setTimeout(() => { const cS = getComputedStyle(document.documentElement); const cC = { primaria: cS.getPropertyValue('--cor-primaria').trim(), secundaria: cS.getPropertyValue('--cor-secundaria').trim(), fundoApp: cS.getPropertyValue('--cor-fundo-app').trim(), fundoContainer: cS.getPropertyValue('--cor-fundo-container').trim(), texto: cS.getPropertyValue('--cor-texto').trim(), destaque: cS.getPropertyValue('--cor-destaque').trim(), }; Object.keys(colorPickers).forEach(k => { if(colorPickers[k] && cC[k]) colorPickers[k].value = cC[k];}); }, 50); } const cPA = getComputedStyle(document.documentElement).getPropertyValue('--cor-primaria').trim(); rS.setProperty('--cor-primaria-transparente', hexToRgba(cPA, 0.25)); appTitle.textContent = `${nomeAtelie || "Ateliê"} - Gestor Pro`; nomeAtelieHeader.textContent = nomeAtelie || "Seu Ateliê"; footerNomeAtelie.textContent = nomeAtelie || "Seu Ateliê"; nomeCostureiraHeader.textContent = nomeCostureira || "Costureira"; }
+        function preencherFormConfiguracoesNomes() { configNomeAtelieInput.value = appData.configuracoes.nomeAtelie; configNomeCostureiraInput.value = appData.configuracoes.nomeCostureira; }
+        function preencherFormConfigTema() { configTemaPredefinidoSelect.value = appData.configuracoes.temaPredefinido; const cT = appData.configuracoes.temaPersonalizado; Object.keys(colorPickers).forEach(k => { if(colorPickers[k] && cT[k]) colorPickers[k].value = cT[k];}); editorTemaPersonalizadoDiv.style.display = appData.configuracoes.temaPredefinido === 'custom' ? 'block' : 'none'; }
+        formConfiguracoesNomesEl.addEventListener('submit', (e) => { e.preventDefault(); appData.configuracoes.nomeAtelie = configNomeAtelieInput.value.trim() || "Meu Ateliê"; appData.configuracoes.nomeCostureira = configNomeCostureiraInput.value.trim() || "Costureira"; aplicarTema(); salvarDados(); mostrarMensagemGlobal('Nomes salvos!', 'sucesso'); });
+        configTemaPredefinidoSelect.addEventListener('change', (e) => { appData.configuracoes.temaPredefinido = e.target.value; editorTemaPersonalizadoDiv.style.display = e.target.value === 'custom' ? 'block' : 'none'; aplicarTema(); salvarDados(); });
+        Object.keys(colorPickers).forEach(key => { colorPickers[key].addEventListener('input', (e) => { if (appData.configuracoes.temaPredefinido !== 'custom') { configTemaPredefinidoSelect.value = 'custom'; appData.configuracoes.temaPredefinido = 'custom'; editorTemaPersonalizadoDiv.style.display = 'block'; } const cssVarName = `--cor-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`; document.documentElement.style.setProperty(cssVarName, e.target.value); if (key === 'primaria') { document.documentElement.style.setProperty('--cor-primaria-transparente', hexToRgba(e.target.value, 0.25)); } }); });
+        btnSalvarTemaPersonalizado.addEventListener('click', () => { Object.keys(colorPickers).forEach(key => { if(appData.configuracoes.temaPersonalizado && colorPickers[key]) appData.configuracoes.temaPersonalizado[key] = colorPickers[key].value; }); appData.configuracoes.temaPredefinido = 'custom'; configTemaPredefinidoSelect.value = 'custom'; aplicarTema(); salvarDados(); mostrarMensagemGlobal('Tema personalizado salvo!', 'sucesso'); });
+
+        // --- CRUD: PEÇAS/MODELOS (Lógica completa da versão anterior) ---
+         let processosTemporariosPecaModelo = [];
+        function renderizarInputProcessoPecaModelo(processo = { id: Date.now(), nome: '', valor: 0 }) { const div = document.createElement('div'); div.classList.add('processo-item'); div.dataset.id = processo.id; div.innerHTML = `<input type="text" placeholder="Nome Processo" value="${processo.nome}" data-field="nome-processo-peca"><input type="number" step="0.01" placeholder="Valor (R$)" value="${processo.valor}" data-field="valor-processo-peca"><button type="button" class="btn btn-pequeno btn-perigo btn-remover-processo-temp">X</button>`; listaProcessosPecaDiv.appendChild(div); div.querySelector('.btn-remover-processo-temp').addEventListener('click', () => { processosTemporariosPecaModelo = processosTemporariosPecaModelo.filter(p => p.id !== processo.id); div.remove(); }); div.querySelectorAll('input').forEach(input => { input.addEventListener('input', () => { const idProc = parseInt(div.dataset.id); const nomeInput = div.querySelector('input[data-field="nome-processo-peca"]').value.trim(); const valorInput = parseFloat(div.querySelector('input[data-field="valor-processo-peca"]').value); const index = processosTemporariosPecaModelo.findIndex(p => p.id === idProc); if (index > -1) { processosTemporariosPecaModelo[index].nome = nomeInput; processosTemporariosPecaModelo[index].valor = isNaN(valorInput) ? 0 : valorInput; } }); });}
+        btnAddProcessoPeca.addEventListener('click', () => { const nP = { id: Date.now(), nome: '', valor: 0 }; processosTemporariosPecaModelo.push(nP); renderizarInputProcessoPecaModelo(nP); });
+        formPecaModelo.addEventListener('submit', (e) => { e.preventDefault(); const n = pecaModeloNomeInput.value.trim(); const cPP = pecaModeloCobraParCheckbox.checked; const m = pecaModeloMateriaisTextarea.value.trim(); const iE = pecaModeloIdEditInput.value; if (!n) { mostrarMensagemGlobal('Nome da peça/modelo obrigatório.', 'erro'); return; } const pVS = processosTemporariosPecaModelo.filter(p => p.nome.trim() !== '' && typeof p.valor === 'number' && !isNaN(p.valor) && p.valor >= 0); const pMD = { nome:n, cobraPorPar:cPP, processos: pVS, materiais:m }; if (iE) { const idx = appData.pecasModelos.findIndex(pm => pm.id == iE); if (idx > -1) appData.pecasModelos[idx] = { ...appData.pecasModelos[idx], ...pMD }; } else { pMD.id = Date.now(); appData.pecasModelos.push(pMD); } salvarDados(); renderizarTabelaPecasModelos(); atualizarSelectPecaModeloProducao(); limparFormPecaModelo(); mostrarMensagemGlobal(`Peça/Modelo ${iE ? 'atualizado' : 'salvo'}!`, 'sucesso'); });
+        function limparFormPecaModelo() { formPecaModelo.reset(); pecaModeloIdEditInput.value = ''; listaProcessosPecaDiv.innerHTML = ''; processosTemporariosPecaModelo = []; btnCancelarEdicaoPecaModelo.style.display = 'none'; pecaModeloNomeInput.focus(); }
+        btnCancelarEdicaoPecaModelo.addEventListener('click', limparFormPecaModelo);
+        function carregarPecaModeloParaEdicao(id) { const pM = appData.pecasModelos.find(pm => pm.id == id); if (pM) { pecaModeloIdEditInput.value = pM.id; pecaModeloNomeInput.value = pM.nome; pecaModeloCobraParCheckbox.checked = pM.cobraPorPar; pecaModeloMateriaisTextarea.value = pM.materiais || ''; listaProcessosPecaDiv.innerHTML = ''; processosTemporariosPecaModelo = JSON.parse(JSON.stringify(pM.processos || [])); processosTemporariosPecaModelo.forEach(p => renderizarInputProcessoPecaModelo(p)); btnCancelarEdicaoPecaModelo.style.display = 'block'; document.querySelector('.bottom-nav-item[data-tab="tab-pecas-modelos"]').click(); setTimeout(() => pecaModeloNomeInput.focus(), 100); } }
+        function excluirPecaModelo(id) { if (confirm('Excluir peça/modelo?')) { appData.pecasModelos = appData.pecasModelos.filter(pm => pm.id != id); salvarDados(); renderizarTabelaPecasModelos(); atualizarSelectPecaModeloProducao(); mostrarMensagemGlobal('Peça/Modelo excluído.', 'info'); } }
+        function renderizarTabelaPecasModelos() { corpoTabelaPecasModelos.innerHTML = ''; if (appData.pecasModelos.length === 0) { semPecasModelosMsg.style.display = 'block'; corpoTabelaPecasModelos.parentElement.style.display = 'none'; return; } semPecasModelosMsg.style.display = 'none'; corpoTabelaPecasModelos.parentElement.style.display = 'table'; appData.pecasModelos.forEach(pm => { const tr = document.createElement('tr'); const vTP = (pm.processos || []).reduce((s, p) => s + (p.valor || 0), 0); tr.innerHTML = `<td>${pm.nome}</td><td class="modo-completo-item">${(pm.processos && pm.processos.length > 0) ? (pm.processos || []).map(p => `${p.nome} (${formatarMoeda(p.valor || 0)})`).join('<br>') + `<hr style="margin:3px 0;"><small>Total: ${formatarMoeda(vTP)}</small>` : 'S/ Processos'}</td><td>${pm.cobraPorPar ? 'Par' : 'Unid.'}</td><td class="modo-completo-item">${(pm.materiais || '-').substring(0,30)}${(pm.materiais && pm.materiais.length > 30) ? '...' : ''}</td><td><button class="btn btn-pequeno btn-aviso btn-editar-peca-modelo" data-id="${pm.id}">✏️</button><button class="btn btn-pequeno btn-perigo btn-excluir-peca-modelo" data-id="${pm.id}">🗑️</button></td>`; corpoTabelaPecasModelos.appendChild(tr); }); corpoTabelaPecasModelos.querySelectorAll('.btn-editar-peca-modelo').forEach(b => b.addEventListener('click', (e) => carregarPecaModeloParaEdicao(e.target.dataset.id))); corpoTabelaPecasModelos.querySelectorAll('.btn-excluir-peca-modelo').forEach(b => b.addEventListener('click', (e) => excluirPecaModelo(e.target.dataset.id))); aplicarModoInterface(); }
+        function atualizarSelectPecaModeloProducao() { prodPecaModeloSelect.innerHTML = '<option value="">Selecione...</option>'; appData.pecasModelos.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(pm => { const o = document.createElement('option'); o.value = pm.id; o.textContent = pm.nome; prodPecaModeloSelect.appendChild(o); }); }
+        function popularPecasModelosExemploLingerie() { const exs = [ { id:Date.now()+1, nome:"Sutiã Básico Exemplo", cobraPorPar:false, processos:[{id:Date.now()+2,nome:"Cortar Ex.",valor:0.8},{id:Date.now()+3,nome:"Costurar Bojo Ex.",valor:1.5}], materiais:"Microfibra, Bojo" }, { id:Date.now()+4, nome:"Calcinha Básica Exemplo", cobraPorPar:false, processos:[{id:Date.now()+5,nome:"Cortar Ex.",valor:0.5},{id:Date.now()+6,nome:"Elástico Pernas Ex.",valor:0.9}], materiais:"Algodão, Elástico"} ]; exs.forEach(ex => { if (!appData.pecasModelos.find(pm => pm.nome === ex.nome)) appData.pecasModelos.push(ex); }); salvarDados(); renderizarTabelaPecasModelos(); atualizarSelectPecaModeloProducao(); mostrarMensagemGlobal('Exemplos adicionados (se não existiam)!', 'info'); }
+        btnAdicionarExemplosPecasModelos.addEventListener('click', () => { if (appData.pecasModelos.length === 0 || confirm("Adicionar exemplos mesmo com modelos existentes (não duplicará nomes idênticos)?")) { popularPecasModelosExemploLingerie(); } });
+
+        // --- CRUD: CLIENTES (Lógica completa da versão anterior) ---
+        formCliente.addEventListener('submit', (e) => { e.preventDefault(); const id=clienteIdEditInput.value; const n=clienteNomeInput.value.trim(); const t=clienteTelefoneInput.value.trim(); const em=clienteEmailInput.value.trim(); const end=clienteEnderecoTextarea.value.trim(); const o=clienteObservacoesTextarea.value.trim(); if(!n){mostrarMensagemGlobal('Nome do cliente obrigatório.','erro'); return;} const cD={nome:n,telefone:t,email:em,endereco:end,observacoes:o}; if(id){const idx=appData.clientes.findIndex(c=>c.id==id); if(idx>-1)appData.clientes[idx]={...appData.clientes[idx],...cD};}else{cD.id=Date.now();appData.clientes.push(cD);} salvarDados(); renderizarTabelaClientes(); popularSelectClientesProducao(); limparFormCliente(); mostrarMensagemGlobal(`Cliente ${id?'atualizado':'salvo'}!`,'sucesso');});
+        function limparFormCliente() { formCliente.reset(); clienteIdEditInput.value=''; btnCancelarEdicaoCliente.style.display='none'; clienteNomeInput.focus(); }
+        btnCancelarEdicaoCliente.addEventListener('click', limparFormCliente);
+        function carregarClienteParaEdicao(id) { const c=appData.clientes.find(cl=>cl.id==id); if(c){clienteIdEditInput.value=c.id; clienteNomeInput.value=c.nome; clienteTelefoneInput.value=c.telefone||''; clienteEmailInput.value=c.email||''; clienteEnderecoTextarea.value=c.endereco||''; clienteObservacoesTextarea.value=c.observacoes||''; btnCancelarEdicaoCliente.style.display='block'; document.querySelector('.bottom-nav-item[data-tab="tab-clientes"]').click(); setTimeout(()=>clienteNomeInput.focus(),100);}}
+        function excluirCliente(id) { if(confirm('Excluir cliente?')){appData.clientes=appData.clientes.filter(c=>c.id!=id); salvarDados(); renderizarTabelaClientes(); popularSelectClientesProducao(); mostrarMensagemGlobal('Cliente excluído.','info');}}
+        function renderizarTabelaClientes() { tabelaClientesBody.innerHTML=''; const tF=filtroClientesInput.value.toLowerCase(); const cFil=appData.clientes.filter(c=>c.nome.toLowerCase().includes(tF)||(c.telefone&&c.telefone.includes(tF))).sort((a,b)=>a.nome.localeCompare(b.nome)); if(cFil.length===0){semClientesMsg.style.display='block'; tabelaClientesBody.parentElement.style.display='none'; return;} semClientesMsg.style.display='none'; tabelaClientesBody.parentElement.style.display='table'; cFil.forEach(c=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${c.nome}</td><td>${c.telefone||'-'}${c.email?`<br><small>${c.email}</small>`:''}</td><td class="modo-completo-item">${(c.observacoes||'-').substring(0,40)}${(c.observacoes&&c.observacoes.length>40)?'...':''}</td><td>${c.telefone?`<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-pequeno btn-whatsapp" title="WhatsApp">📞</a>`:''}<button class="btn btn-pequeno btn-aviso btn-editar-cliente" data-id="${c.id}" title="Editar">✏️</button><button class="btn btn-pequeno btn-perigo btn-excluir-cliente" data-id="${c.id}" title="Excluir">🗑️</button></td>`; tabelaClientesBody.appendChild(tr);}); tabelaClientesBody.querySelectorAll('.btn-editar-cliente').forEach(b=>b.addEventListener('click',(e)=>carregarClienteParaEdicao(e.target.dataset.id))); tabelaClientesBody.querySelectorAll('.btn-excluir-cliente').forEach(b=>b.addEventListener('click',(e)=>excluirCliente(e.target.dataset.id))); aplicarModoInterface();}
+        filtroClientesInput.addEventListener('input', renderizarTabelaClientes);
+        function popularSelectClientesProducao() { prodClienteSelect.innerHTML='<option value="">Nenhum cliente</option>'; appData.clientes.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nome;prodClienteSelect.appendChild(o);});}
+
+        // --- CRUD: CONTATOS ÚTEIS (Lógica completa da versão anterior) ---
+        formContatoUtil.addEventListener('submit', (e)=>{e.preventDefault(); const id=contatoUtilIdEditInput.value; const n=contatoUtilNomeInput.value.trim(); const tipo=contatoUtilTipoSelect.value; const tel=contatoUtilTelefoneInput.value.trim(); const email=contatoUtilEmailInput.value.trim(); const obs=contatoUtilObservacoesTextarea.value.trim(); if(!n||!tipo){mostrarMensagemGlobal('Nome e tipo são obrigatórios.','erro'); return;} const cUData={nome:n,tipo,telefone:tel,email,observacoes:obs}; if(id){const idx=appData.contatosUteis.findIndex(cu=>cu.id==id); if(idx>-1)appData.contatosUteis[idx]={...appData.contatosUteis[idx],...cUData};}else{cUData.id=Date.now();appData.contatosUteis.push(cUData);} salvarDados();renderizarTabelaContatosUteis();limparFormContatoUtil();mostrarMensagemGlobal(`Contato ${id?'atualizado':'salvo'}!`,'sucesso');});
+        function limparFormContatoUtil(){formContatoUtil.reset(); contatoUtilIdEditInput.value=''; btnCancelarEdicaoContatoUtil.style.display='none'; contatoUtilNomeInput.focus();}
+        btnCancelarEdicaoContatoUtil.addEventListener('click', limparFormContatoUtil);
+        function carregarContatoUtilParaEdicao(id){const cu=appData.contatosUteis.find(c=>c.id==id); if(cu){contatoUtilIdEditInput.value=cu.id; contatoUtilNomeInput.value=cu.nome; contatoUtilTipoSelect.value=cu.tipo; contatoUtilTelefoneInput.value=cu.telefone||''; contatoUtilEmailInput.value=cu.email||''; contatoUtilObservacoesTextarea.value=cu.observacoes||''; btnCancelarEdicaoContatoUtil.style.display='block'; document.querySelector('.bottom-nav-item[data-tab="tab-contatos"]').click(); setTimeout(()=>contatoUtilNomeInput.focus(),100);}}
+        function excluirContatoUtil(id){if(confirm('Excluir este contato útil?')){appData.contatosUteis=appData.contatosUteis.filter(cu=>cu.id!=id); salvarDados(); renderizarTabelaContatosUteis(); mostrarMensagemGlobal('Contato útil excluído.','info');}}
+        function renderizarTabelaContatosUteis(){tabelaContatosUteisBody.innerHTML=''; const tF=filtroContatosInput.value.toLowerCase(); const cUFil=appData.contatosUteis.filter(cu=>cu.nome.toLowerCase().includes(tF)||cu.tipo.toLowerCase().includes(tF)||(cu.telefone&&cu.telefone.includes(tF))).sort((a,b)=>a.nome.localeCompare(b.nome)); if(cUFil.length===0){semContatosUteisMsg.style.display='block'; tabelaContatosUteisBody.parentElement.style.display='none'; return;} semContatosUteisMsg.style.display='none'; tabelaContatosUteisBody.parentElement.style.display='table'; cUFil.forEach(cu=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${cu.nome}</td><td>${cu.tipo}</td><td>${cu.telefone||'-'}${cu.email?`<br><small>${cu.email}</small>`:''}</td><td class="modo-completo-item">${(cu.observacoes||'-').substring(0,40)}${(cu.observacoes&&cu.observacoes.length>40)?'...':''}</td><td>${cu.telefone?`<a href="https://wa.me/55${cu.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-pequeno btn-whatsapp" title="WhatsApp">📞</a>`:''}<button class="btn btn-pequeno btn-aviso btn-editar-contato-util" data-id="${cu.id}" title="Editar">✏️</button><button class="btn btn-pequeno btn-perigo btn-excluir-contato-util" data-id="${cu.id}" title="Excluir">🗑️</button></td>`; tabelaContatosUteisBody.appendChild(tr);}); tabelaContatosUteisBody.querySelectorAll('.btn-editar-contato-util').forEach(b=>b.addEventListener('click',(e)=>carregarContatoUtilParaEdicao(e.target.dataset.id))); tabelaContatosUteisBody.querySelectorAll('.btn-excluir-contato-util').forEach(b=>b.addEventListener('click',(e)=>excluirContatoUtil(e.target.dataset.id))); aplicarModoInterface();}
+        filtroContatosInput.addEventListener('input', renderizarTabelaContatosUteis);
+
+        // --- CRUD: PRODUÇÃO (Lógica completa da versão anterior) ---
+        prodPecaModeloSelect.addEventListener('change', () => { const pMID = prodPecaModeloSelect.value; processosParaProducaoDiv.innerHTML = ''; prodValorTotalCalculadoInput.value = ''; if (pMID) { const pM = appData.pecasModelos.find(pm => pm.id == pMID); if (pM && pM.processos && pM.processos.length > 0) { pM.processos.forEach(pr => { const d = document.createElement('div'); d.innerHTML = `<label class="checkbox-label"><input type="checkbox" name="processo-producao" value="${pr.id}" data-valor="${pr.valor}">${pr.nome} (${formatarMoeda(pr.valor)})</label>`; processosParaProducaoDiv.appendChild(d); }); processosParaProducaoDiv.querySelectorAll('input[name="processo-producao"]').forEach(c => c.addEventListener('change', calcularValorTotalProducao)); calcularValorTotalProducao(); } else { processosParaProducaoDiv.innerHTML = '<p class="info-text">Sem processos para este modelo.</p>'; } } else { processosParaProducaoDiv.innerHTML = '<p class="info-text">Selecione Peça/Modelo Base.</p>'; } });
+        function calcularValorTotalProducao() { let vSP = 0; processosParaProducaoDiv.querySelectorAll('input[name="processo-producao"]:checked').forEach(c => { vSP += parseFloat(c.dataset.valor); }); const q = parseInt(prodQuantidadeInput.value) || 1; const vT = vSP * q; prodValorTotalCalculadoInput.value = formatarMoeda(vT); return vT; }
+        prodQuantidadeInput.addEventListener('input', calcularValorTotalProducao);
+        formProducao.addEventListener('submit', (e) => { e.preventDefault(); const id=producaoIdInput.value; const d=prodDataInput.value; const pMID=prodPecaModeloSelect.value; const pMObj=appData.pecasModelos.find(pm=>pm.id==pMID); const nPM=pMObj?pMObj.nome:'(Modelo Base Deletado)'; const cPP=pMObj?pMObj.cobraPorPar:false; const mD=prodModeloDescricaoInput.value.trim(); const cP=prodCorPecaInput.value.trim(); const cID=prodClienteSelect.value; const q=parseInt(prodQuantidadeInput.value); const pg=prodPagoCheckbox.checked; const obs=prodObservacoesTextarea.value.trim(); const mats=prodMateriaisTextarea.value.trim(); let pSel=[]; let vTI=0; if(appData.configuracoes.modoInterface==='simples'){vTI=parseFloat(prodValorManualInput.value)||0;}else{processosParaProducaoDiv.querySelectorAll('input[name="processo-producao"]:checked').forEach(c=>{const pID=c.value; if(pMObj && pMObj.processos){ const pOrig=pMObj.processos.find(p=>p.id==pID); if(pOrig)pSel.push({id:pOrig.id,nome:pOrig.nome,valor:pOrig.valor});}}); vTI=calcularValorTotalProducao();} if(!d||!pMID||isNaN(q)||q<=0){mostrarMensagemGlobal('Preencha data, peça base e quantidade.','erro');return;} const pData={data:d,pecaModeloId:pMID,nomePecaModelo:nPM,cobraPorPar:cPP,modeloDescricao:mD,corPeca:cP,corPecaHTML:validarCorCSS(cP),clienteId:cID,quantidade:q,processos:pSel,valorTotalItem:vTI,pago:pg,observacoes:obs,materiais:mats}; if(id){const idx=appData.producoes.findIndex(p=>p.id==id); if(idx>-1)appData.producoes[idx]={...appData.producoes[idx],...pData};}else{pData.id=Date.now();appData.producoes.push(pData);} salvarDados();renderizarTabelaProducao();renderizarDashboard();limparFormProducao();mostrarMensagemGlobal(`Produção ${id?'atualizada':'adicionada'}!`,'sucesso');});
+        function limparFormProducao(){formProducao.reset();producaoIdInput.value='';prodDataInput.value=hojeFormatado();processosParaProducaoDiv.innerHTML='<p class="info-text">Selecione Peça/Modelo Base.</p>';prodValorTotalCalculadoInput.value='';prodValorManualInput.value='';btnLimparFormProd.style.display='none';prodPecaModeloSelect.focus();}
+        btnLimparFormProd.addEventListener('click',limparFormProducao);
+        function carregarProducaoParaEdicao(id){const p=appData.producoes.find(pr=>pr.id==id); if(p){producaoIdInput.value=p.id; prodDataInput.value=p.data; prodPecaModeloSelect.value=p.pecaModeloId; const ev=new Event('change'); prodPecaModeloSelect.dispatchEvent(ev); setTimeout(()=>{ (p.processos||[]).forEach(pS=>{const chk=processosParaProducaoDiv.querySelector(`input[value="${pS.id}"]`); if(chk)chk.checked=true;}); if(appData.configuracoes.modoInterface==='simples'){prodValorManualInput.value=p.valorTotalItem;}else{calcularValorTotalProducao();} },150); prodModeloDescricaoInput.value=p.modeloDescricao; prodCorPecaInput.value=p.corPeca||''; prodClienteSelect.value=p.clienteId||''; prodQuantidadeInput.value=p.quantidade; prodMateriaisTextarea.value=p.materiais||''; prodPagoCheckbox.checked=p.pago; prodObservacoesTextarea.value=p.observacoes; btnLimparFormProd.style.display='block'; document.querySelector('.bottom-nav-item[data-tab="tab-producao"]').click(); setTimeout(()=>prodPecaModeloSelect.focus(),100);}}
+        function excluirProducao(id){if(confirm('Excluir registro de produção?')){appData.producoes=appData.producoes.filter(p=>p.id!=id);salvarDados();renderizarTabelaProducao();renderizarDashboard();mostrarMensagemGlobal('Produção excluída.','info');}}
+        function alternarStatusPagamentoProducao(id){const idx=appData.producoes.findIndex(p=>p.id==id);if(idx>-1){appData.producoes[idx].pago=!appData.producoes[idx].pago;salvarDados();renderizarTabelaProducao();renderizarDashboard();mostrarMensagemGlobal('Status de pagamento atualizado.','sucesso');}}
+        function renderizarTabelaProducao(){corpoTabelaProducao.innerHTML=''; const mF=filtroMesProducao.value; const sF=filtroStatusPagamento.value; const pFil=appData.producoes.filter(p=>{let cM=true,cS=true; if(mF)cM=p.data.startsWith(mF); if(sF!=='todos')cS=(sF==='pago'&&p.pago)||(sF==='pendente'&&!p.pago); return cM&&cS;}).sort((a,b)=>new Date(b.data)-new Date(a.data)||b.id-a.id); if(pFil.length===0){semProducaoMsg.textContent='Nenhuma produção com filtros atuais.';semProducaoMsg.style.display='block';corpoTabelaProducao.parentElement.style.display='none';return;} semProducaoMsg.style.display='none';corpoTabelaProducao.parentElement.style.display='table'; pFil.forEach(p=>{const tr=document.createElement('tr'); const pN=(p.processos||[]).map(pr=>pr.nome).join(', '); const cliP=appData.clientes.find(c=>c.id==p.clienteId); const nCliP=cliP?cliP.nome:'N/A'; tr.innerHTML=`<td>${formatarData(p.data)}</td><td>${p.nomePecaModelo||'(Base Deletada)'}${p.cobraPorPar?'(Par)':''}${p.corPeca?`<br><small style="font-size:0.85em;">${p.corPecaHTML?`<span class="cor-peca-preview" style="background-color:${p.corPecaHTML};"></span>`:''} ${p.corPeca}</small>`:''}</td><td class="modo-completo-item">${nCliP}</td><td>${p.modeloDescricao || '-'}</td><td>${p.quantidade}</td><td class="modo-completo-item" title="${(p.processos||[]).map(pr=>`${pr.nome}: ${formatarMoeda(pr.valor||0)}`).join('\n')}">${pN.substring(0,25)}${pN.length>25?'...':''}</td><td>${formatarMoeda(p.valorTotalItem)}</td><td><button class="btn btn-pequeno ${p.pago?'btn-sucesso':'btn-aviso'} btn-toggle-pago" data-id="${p.id}">${p.pago?'✔️ Pago':'⌛ Pend.'}</button></td><td><button class="btn btn-pequeno btn-aviso btn-editar-producao" data-id="${p.id}" title="Editar">✏️</button><button class="btn btn-pequeno btn-perigo btn-excluir-producao" data-id="${p.id}" title="Excluir">🗑️</button><button class="btn btn-pequeno btn-info btn-gerar-comprovante" data-id="${p.id}" title="Gerar Comprovante">🧾</button><button class="btn btn-pequeno btn-whatsapp btn-share-whatsapp" data-id="${p.id}" title="Compartilhar no WhatsApp">💬</button></td>`; corpoTabelaProducao.appendChild(tr);}); corpoTabelaProducao.querySelectorAll('.btn-editar-producao').forEach(b=>b.addEventListener('click',(e)=>carregarProducaoParaEdicao(e.target.dataset.id))); corpoTabelaProducao.querySelectorAll('.btn-excluir-producao').forEach(b=>b.addEventListener('click',(e)=>excluirProducao(e.target.dataset.id))); corpoTabelaProducao.querySelectorAll('.btn-toggle-pago').forEach(b=>b.addEventListener('click',(e)=>alternarStatusPagamentoProducao(e.target.dataset.id))); corpoTabelaProducao.querySelectorAll('.btn-gerar-comprovante').forEach(b => b.addEventListener('click', (e) => gerarComprovanteProducao(e.target.dataset.id))); corpoTabelaProducao.querySelectorAll('.btn-share-whatsapp').forEach(b => b.addEventListener('click', (e) => compartilharProducaoWhatsApp(e.target.dataset.id))); aplicarModoInterface();}
+        filtroMesProducao.addEventListener('change',renderizarTabelaProducao); filtroStatusPagamento.addEventListener('change',renderizarTabelaProducao); btnLimparFiltrosProducao.addEventListener('click',()=>{filtroMesProducao.value='';filtroStatusPagamento.value='todos';renderizarTabelaProducao();});
+
+        // --- REPAROS, HORAS, ANOTAÇÕES (Lógica completa da versão anterior) ---
+        // (COPIAR E COLAR AQUI)
+        formReparo.addEventListener('submit', (e) => { e.preventDefault(); const id = reparoIdInput.value; const dataEntrada = reparoDataEntradaInput.value; const origem = reparoOrigemTextoInput.value.trim(); const descricao = reparoDescricaoTextarea.value.trim(); const valor = parseFloat(reparoValorInput.value) || 0; const status = reparoStatusSelect.value; if (!dataEntrada) { mostrarMensagemGlobal('Data de entrada é obrigatória para o reparo.', 'erro'); return; } const reparoData = { dataEntrada, origem, descricao, valor, status }; if (id) { const index = appData.reparos.findIndex(r => r.id == id); if (index > -1) appData.reparos[index] = { ...appData.reparos[index], ...reparoData }; } else { reparoData.id = Date.now(); appData.reparos.push(reparoData); } salvarDados(); renderizarTabelaReparos(); limparFormReparo(); mostrarMensagemGlobal(`Reparo ${id ? 'atualizado' : 'registrado'}!`, 'sucesso'); });
+        function limparFormReparo() { formReparo.reset(); reparoIdInput.value = ''; reparoDataEntradaInput.value = hojeFormatado(); btnCancelarEdicaoReparo.style.display = 'none'; reparoDescricaoTextarea.focus(); }
+        if(btnCancelarEdicaoReparo) btnCancelarEdicaoReparo.addEventListener('click', limparFormReparo);
+        function carregarReparoParaEdicao(id) { const reparo = appData.reparos.find(r => r.id == id); if (reparo) { reparoIdInput.value = reparo.id; reparoDataEntradaInput.value = reparo.dataEntrada; reparoOrigemTextoInput.value = reparo.origem || ''; reparoDescricaoTextarea.value = reparo.descricao; reparoValorInput.value = reparo.valor; reparoStatusSelect.value = reparo.status; btnCancelarEdicaoReparo.style.display = 'block'; document.querySelector('.bottom-nav-item[data-tab="tab-reparos"]').click(); setTimeout(() => reparoDescricaoTextarea.focus(), 100); } }
+        function excluirReparo(id) { if (confirm('Excluir este registro de reparo?')) { appData.reparos = appData.reparos.filter(r => r.id != id); salvarDados(); renderizarTabelaReparos(); mostrarMensagemGlobal('Reparo excluído.', 'info'); } }
+        function renderizarTabelaReparos() { corpoTabelaReparos.innerHTML = ''; const reparosOrdenados = [...appData.reparos].sort((a,b) => new Date(b.dataEntrada) - new Date(a.dataEntrada)); if (reparosOrdenados.length === 0) { semReparosMsg.style.display = 'block'; corpoTabelaReparos.parentElement.style.display = 'none'; return; } semReparosMsg.style.display = 'none'; corpoTabelaReparos.parentElement.style.display = 'table'; reparosOrdenados.forEach(r => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${formatarData(r.dataEntrada)}</td><td>${r.origem || '-'}</td><td>${r.descricao || '-'}</td><td>${formatarMoeda(r.valor)}</td><td>${r.status}</td><td><button class="btn btn-pequeno btn-aviso btn-editar-reparo" data-id="${r.id}">✏️</button><button class="btn btn-pequeno btn-perigo btn-excluir-reparo" data-id="${r.id}">🗑️</button></td>`; corpoTabelaReparos.appendChild(tr); }); corpoTabelaReparos.querySelectorAll('.btn-editar-reparo').forEach(btn => btn.addEventListener('click', (e) => carregarReparoParaEdicao(e.target.dataset.id))); corpoTabelaReparos.querySelectorAll('.btn-excluir-reparo').forEach(btn => btn.addEventListener('click', (e) => excluirReparo(e.target.dataset.id))); }
+        formHoras.addEventListener('submit', (e) => { e.preventDefault(); const data = horasDataInput.value; const horas = parseFloat(horasQuantidadeInput.value); if (!data || isNaN(horas) || horas <= 0) { mostrarMensagemGlobal('Data e horas válidas são obrigatórias.', 'erro'); return; } const indexExistente = appData.horasTrabalhadas.findIndex(h => h.data === data); if (indexExistente > -1) appData.horasTrabalhadas[indexExistente].horas = horas; else appData.horasTrabalhadas.push({ data, horas }); salvarDados(); renderizarHorasTrabalhadas(); renderizarDashboard(); formHoras.reset(); horasDataInput.value = hojeFormatado(); mostrarMensagemGlobal('Horas registradas!', 'sucesso'); });
+        function excluirHoras(data) { if (confirm(`Excluir horas de ${formatarData(data)}?`)) { appData.horasTrabalhadas = appData.horasTrabalhadas.filter(h => h.data !== data); salvarDados(); renderizarHorasTrabalhadas(); renderizarDashboard(); mostrarMensagemGlobal('Registro de horas excluído.', 'info'); } }
+        function renderizarHorasTrabalhadas() { const mesAnoSelecionado = filtroMesHoras.value || mesAnoAtualFormatado(); listaHorasRegistradasUl.innerHTML = ''; const horasDoMes = appData.horasTrabalhadas.filter(h => h.data.startsWith(mesAnoSelecionado)).sort((a,b) => new Date(a.data) - new Date(b.data)); let totalHoras = 0; if (horasDoMes.length === 0) { semHorasMsg.style.display = 'block'; } else { semHorasMsg.style.display = 'none'; horasDoMes.forEach(h => { const li = document.createElement('li'); li.innerHTML = `<span>${formatarData(h.data)}: <strong>${h.horas.toFixed(1).replace('.',',')}h</strong></span><button class="btn btn-pequeno btn-perigo btn-excluir-horas" data-data="${h.data}">🗑️</button>`; listaHorasRegistradasUl.appendChild(li); totalHoras += h.horas; }); listaHorasRegistradasUl.querySelectorAll('.btn-excluir-horas').forEach(btn => { btn.addEventListener('click', (e) => excluirHoras(e.target.dataset.data)); }); } totalHorasMesSpan.textContent = `${totalHoras.toFixed(1).replace('.',',')}h`; }
+        if(filtroMesHoras) filtroMesHoras.addEventListener('change', renderizarHorasTrabalhadas);
+        formAnotacao.addEventListener('submit', (e) => { e.preventDefault(); const id = anotacaoIdInput.value; const titulo = anotacaoTituloInput.value.trim(); const conteudo = anotacaoConteudoTextarea.value.trim(); if (!conteudo && !titulo) { mostrarMensagemGlobal('Título ou conteúdo da anotação é obrigatório.', 'erro'); return; } const anotacao = { titulo, conteudo, dataModificacao: hojeFormatado() }; if (id) { const index = appData.anotacoes.findIndex(a => a.id == id); if (index > -1) appData.anotacoes[index] = { ...appData.anotacoes[index], ...anotacao }; } else { anotacao.id = Date.now(); anotacao.dataCriacao = hojeFormatado(); appData.anotacoes.push(anotacao); } salvarDados(); renderizarAnotacoes(); limparFormAnotacao(); mostrarMensagemGlobal(`Anotação ${id ? 'atualizada' : 'salva'}!`, 'sucesso'); });
+        function limparFormAnotacao() { formAnotacao.reset(); anotacaoIdInput.value = ''; if(btnCancelarEdicaoAnotacao) btnCancelarEdicaoAnotacao.style.display = 'none'; } 
+        if(btnCancelarEdicaoAnotacao) btnCancelarEdicaoAnotacao.addEventListener('click', limparFormAnotacao);
+        function carregarAnotacaoParaEdicao(id) { const anotacao = appData.anotacoes.find(a => a.id == id); if (anotacao) { anotacaoIdInput.value = anotacao.id; anotacaoTituloInput.value = anotacao.titulo; anotacaoConteudoTextarea.value = anotacao.conteudo; if(btnCancelarEdicaoAnotacao) btnCancelarEdicaoAnotacao.style.display = 'block'; document.querySelector('.bottom-nav-item[data-tab="tab-configuracoes"]').click(); setTimeout(() => {const anCont = document.getElementById('anotacao-conteudo'); if(anCont) anCont.focus();}, 150);}}
+        function excluirAnotacao(id) { if (confirm('Excluir esta anotação?')) { appData.anotacoes = appData.anotacoes.filter(a => a.id != id); salvarDados(); renderizarAnotacoes(); mostrarMensagemGlobal('Anotação excluída.', 'info'); } }
+        function renderizarAnotacoes() { listaAnotacoesDiv.innerHTML = ''; const anotacoesOrdenadas = [...appData.anotacoes].sort((a,b) => new Date(b.dataModificacao) - new Date(a.dataModificacao) || b.id - a.id); if (anotacoesOrdenadas.length === 0) { semAnotacoesMsg.style.display = 'block'; return; } semAnotacoesMsg.style.display = 'none'; anotacoesOrdenadas.forEach(a => { const div = document.createElement('div'); div.className = 'secao'; div.style.marginBottom = '10px'; div.innerHTML = `${a.titulo ? `<h3>${a.titulo}</h3>` : ''}<p style="white-space: pre-wrap;">${a.conteudo}</p><small>Modificado: ${formatarData(a.dataModificacao)}</small><div style="margin-top: 10px;"><button class="btn btn-pequeno btn-aviso btn-editar-anotacao" data-id="${a.id}">✏️ Editar</button><button class="btn btn-pequeno btn-perigo btn-excluir-anotacao" data-id="${a.id}">🗑️ Excluir</button></div>`; listaAnotacoesDiv.appendChild(div); }); listaAnotacoesDiv.querySelectorAll('.btn-editar-anotacao').forEach(btn => btn.addEventListener('click', (e) => carregarAnotacaoParaEdicao(e.target.dataset.id))); listaAnotacoesDiv.querySelectorAll('.btn-excluir-anotacao').forEach(btn => btn.addEventListener('click', (e) => excluirAnotacao(e.target.dataset.id))); }
+
+        // --- IMPORT/EXPORT ---
+        btnExportarDados.addEventListener('click', () => { const dJ = JSON.stringify(appData, null, 2); const b = new Blob([dJ],{type:'application/json'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); const nA = `backup_atelie_${(appData.configuracoes.nomeAtelie||'atelie').replace(/\s+/g,'_')}_${hojeFormatado()}.json`; a.href=u; a.download=nA; document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);mostrarMensagemGlobal('Dados exportados!','sucesso');});
+        inputImportarDados.addEventListener('change', (event) => { const f = event.target.files[0]; if (f) { if (!confirm("ATENÇÃO: Importar substituirá TODOS os dados atuais. Continuar?")) { inputImportarDados.value = ''; return; } const r = new FileReader(); r.onload = (e) => { try { const dI = JSON.parse(e.target.result); if (dI.configuracoes && Array.isArray(dI.pecasModelos) && Array.isArray(dI.producoes)) { const defConf = { nomeAtelie: "Meu Ateliê", nomeCostureira: "Costureira", temaPredefinido: "theme-classic-rose", temaPersonalizado: { primaria: '#E91E63', secundaria: '#AD1457', fundoApp: '#F4F6F9', fundoContainer: '#FFFFFF', texto: '#343A40', destaque: '#FFC107' }, modoInterface: "completo" }; const mConf = { ...defConf, ...(dI.configuracoes || {}) }; mConf.temaPersonalizado = { ...defConf.temaPersonalizado, ...((dI.configuracoes || {}).temaPersonalizado || {}) }; appData = { ...{pecasModelos:[], producoes:[], clientes:[], contatosUteis:[], reparos:[], horasTrabalhadas:[], anotacoes:[]}, ...dI, configuracoes: mConf }; salvarDados(); aplicarTema(); preencherFormConfiguracoesNomes(); preencherFormConfigTema(); preencherSeletorModoInterface(); inicializarTodasAsRenderizacoes(); mostrarMensagemGlobal('Dados importados! App recarregado.', 'sucesso'); } else { throw new Error("Arquivo JSON inválido."); } } catch (err) { console.error("Erro ao importar:", err); mostrarMensagemGlobal(`Erro ao importar: ${err.message}`, 'erro'); } finally { inputImportarDados.value = ''; } }; r.readAsText(f); } });
+        
+        // --- DASHBOARD E GRÁFICOS ---
+        function formatarMesAnoDisplay(mesAnoStr) { if (!mesAnoStr) return ""; const [ano, mesNum] = mesAnoStr.split('-'); const d = new Date(parseInt(ano), parseInt(mesNum) - 1, 1); return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); }
+        function renderizarGraficoGanhosMensais() { if (!graficoGanhosMensaisDiv) return; graficoGanhosMensaisDiv.innerHTML = ''; const dataHoje = new Date(); let ganhosPorMes = {}; for (let i = 5; i >= 0; i--) { const d = new Date(dataHoje.getFullYear(), dataHoje.getMonth() - i, 1); const mesAno = d.toISOString().slice(0, 7); ganhosPorMes[mesAno] = { nome: d.toLocaleDateString('pt-BR', {month:'short'}), total: 0 }; } appData.producoes.forEach(p => { const mesAnoProd = p.data.slice(0, 7); if (ganhosPorMes[mesAnoProd]) ganhosPorMes[mesAnoProd].total += p.valorTotalItem; }); const valores = Object.values(ganhosPorMes).map(m => m.total); const maxValor = Math.max(...valores, 1); Object.values(ganhosPorMes).forEach(mes => { const alturaPercent = (mes.total / maxValor) * 100; const barra = document.createElement('div'); barra.className = 'barra'; barra.style.height = `${alturaPercent}%`; barra.innerHTML = `<span>${mes.nome}<br>${formatarMoeda(mes.total)}</span>`; graficoGanhosMensaisDiv.appendChild(barra); });}
+        function renderizarTopPecas() { if(!listaTopPecasUl) return; listaTopPecasUl.innerHTML = ''; const mesFiltro = filtroMesDashboard.value || mesAnoAtualFormatado(); const contagemPecas = {}; appData.producoes.filter(p => p.data.startsWith(mesFiltro)).forEach(p => { const nomePeca = p.nomePecaModelo || "Desconhecida"; contagemPecas[nomePeca] = (contagemPecas[nomePeca] || 0) + p.quantidade; }); const topArray = Object.entries(contagemPecas).sort(([,a],[,b]) => b-a).slice(0, 5); if(topArray.length === 0) { listaTopPecasUl.innerHTML = '<li>Nenhuma peça produzida neste mês.</li>'; return; } topArray.forEach(([nome, qtd]) => { const li = document.createElement('li'); li.textContent = `${nome}: ${qtd} unid.`; listaTopPecasUl.appendChild(li); });}
+        function renderizarDashboard() { const hj=hojeFormatado(); const mAF=filtroMesDashboard.value||mesAnoAtualFormatado(); let gD=0,gM=0,tRM=0,tPM=0,pPM=0; appData.producoes.forEach(p=>{if(p.data===hj)gD+=p.valorTotalItem; if(p.data.startsWith(mAF)){gM+=p.valorTotalItem;pPM+=p.quantidade;if(p.pago)tRM+=p.valorTotalItem;else tPM+=p.valorTotalItem;}}); let hTM=appData.horasTrabalhadas.filter(h=>h.data.startsWith(mAF)).reduce((s,h)=>s+h.horas,0); dashValorCard1.textContent=formatarMoeda(gD);dashValorCard2.textContent=formatarMoeda(gM);dashValorCard3.textContent=formatarMoeda(tRM);dashValorCard4.textContent=formatarMoeda(tPM);dashValorCard5.textContent=pPM;dashValorCard6.textContent=`${hTM.toFixed(1).replace('.',',')}h`; if(appData.configuracoes.modoInterface==='completo'){renderizarGraficoGanhosMensais();renderizarTopPecas();}}
+        filtroMesDashboard.addEventListener('change',renderizarDashboard); btnLimparFiltroDashboard.addEventListener('click',()=>{filtroMesDashboard.value=mesAnoAtualFormatado();renderizarDashboard();});
+
+
+        // --- GERAR COMPROVANTE INDIVIDUAL E RELATÓRIO POR PERÍODO ---
+        function gerarComprovanteProducao(producaoId) {
+            const p = appData.producoes.find(item => item.id == producaoId);
+            if (!p) { mostrarMensagemGlobal("Produção não encontrada.", "erro"); return; }
+            const cliente = p.clienteId ? appData.clientes.find(c => c.id == p.clienteId) : null;
+            const pecaBase = appData.pecasModelos.find(pm => pm.id == p.pecaModeloId);
+
+            let html = `<div id="comprovante-para-impressao">`;
+            html += `<h1>Comprovante de Produção</h1>`;
+            html += `<p style="text-align:center; margin-bottom:20px;"><strong>${appData.configuracoes.nomeAtelie}</strong></p>`;
+            html += `<h2>Detalhes da Produção</h2>`;
+            html += `<p><strong>Data:</strong> ${formatarData(p.data)}</p>`;
+            if (cliente) html += `<p><strong>Cliente:</strong> ${cliente.nome}</p>`;
+            html += `<p><strong>Peça Base:</strong> ${p.nomePecaModelo || (pecaBase ? pecaBase.nome : '(Não informado)')}</p>`;
+            html += `<p><strong>Descrição Detalhada:</strong> ${p.modeloDescricao || '(Não informado)'}</p>`;
+            if (p.corPeca) html += `<p><strong>Cor:</strong> ${p.corPeca}</p>`;
+            html += `<p><strong>Quantidade:</strong> ${p.quantidade}</p>`;
+            if (appData.configuracoes.modoInterface === 'completo' && p.processos && p.processos.length > 0) { html += `<h3>Processos Realizados e Custos</h3><ul>`; p.processos.forEach(proc => { html += `<li>${proc.nome || '(Processo sem nome)'}: ${formatarMoeda(proc.valor || 0)}</li>`; }); html += `</ul>`; }
+            if (appData.configuracoes.modoInterface === 'completo' && p.materiais) { html += `<h3>Materiais Utilizados</h3><p>${p.materiais.replace(/\n/g, '<br>')}</p>`;}
+            html += `<hr>`;
+            if(p.quantidade > 0 && p.valorTotalItem !== 0 ) { html += `<p><strong>Valor Unitário Estimado: ${formatarMoeda(p.valorTotalItem / p.quantidade)}</strong> (x${p.quantidade})</p>`; }
+            html += `<h2 style="margin-top:10px;">Valor Total: ${formatarMoeda(p.valorTotalItem)}</h2>`;
+            html += `<p><strong>Status Pagamento:</strong> ${p.pago ? 'Pago' : 'Pendente'}</p>`;
+            if (p.observacoes) html += `<p><strong>Observações:</strong> ${p.observacoes.replace(/\n/g, '<br>')}</p>`;
+            html += `<hr><p id="rodape-comprovante">Gerado por: ${appData.configuracoes.nomeAtelie || 'Gestor de Ateliê Pro'}</p>`;
+            html += `</div>`;
+            comprovanteContainerHidden.innerHTML = html;
+            requestAnimationFrame(() => { requestAnimationFrame(() => { window.print(); }); });
+        }
+
+        function compartilharProducaoWhatsApp(producaoId) {
+             const p = appData.producoes.find(item => item.id == producaoId);
+            if (!p) { mostrarMensagemGlobal("Produção não encontrada.", "erro"); return; }
+            const cliente = p.clienteId ? appData.clientes.find(c => c.id == p.clienteId) : null;
+            let msg = `*Resumo da Produção - ${appData.configuracoes.nomeAtelie}*\n\n`;
+            msg += `Data: ${formatarData(p.data)}\n`;
+            if (cliente) msg += `Cliente: ${cliente.nome}\n`;
+            msg += `Peça: ${p.nomePecaModelo} - ${p.modeloDescricao || '(Sem descrição detalhada)'}\n`;
+            if (p.corPeca) msg += `Cor: ${p.corPeca}\n`;
+            msg += `Quantidade: ${p.quantidade}\n`;
+            msg += `*Valor Total: ${formatarMoeda(p.valorTotalItem)}*\n`;
+            msg += `Status: ${p.pago ? 'Pago' : 'Pendente'}\n`;
+            if (p.observacoes) msg += `\nObservações: ${p.observacoes}\n`;
+            const encodedMsg = encodeURIComponent(msg);
+            let whatsappLink = `https://api.whatsapp.com/send?text=${encodedMsg}`;
+            if (cliente && cliente.telefone) { whatsappLink = `https://api.whatsapp.com/send?phone=55${cliente.telefone.replace(/\D/g,'')}&text=${encodedMsg}`; }
+            window.open(whatsappLink, '_blank');
+        }
+
+        function gerarRelatorioProducaoPeriodo() {
+            const dataInicio = filtroRelatorioDataInicio.value;
+            const dataFim = filtroRelatorioDataFim.value;
+            const clienteIdSelecionado = filtroRelatorioCliente.value;
+
+            if (!dataInicio || !dataFim) {
+                mostrarMensagemGlobal("Por favor, selecione a Data Início e Data Fim para o relatório.", "erro");
+                return;
+            }
+            if (new Date(dataInicio) > new Date(dataFim)) {
+                mostrarMensagemGlobal("A Data Início não pode ser posterior à Data Fim.", "erro");
+                return;
+            }
+
+            let producoesFiltradas = appData.producoes.filter(p => {
+                const dataProducao = new Date(p.data + "T00:00:00"); // Adiciona T00:00:00 para evitar problemas de fuso
+                const inicio = new Date(dataInicio + "T00:00:00");
+                const fim = new Date(dataFim + "T23:59:59"); // Considera o dia inteiro para data fim
+                
+                let atendeData = dataProducao >= inicio && dataProducao <= fim;
+                let atendeCliente = true;
+                if (clienteIdSelecionado) {
+                    atendeCliente = p.clienteId == clienteIdSelecionado;
+                }
+                return atendeData && atendeCliente;
+            });
+
+            if (producoesFiltradas.length === 0) {
+                mostrarMensagemGlobal("Nenhuma produção encontrada para o período e cliente selecionados.", "info");
+                return;
+            }
+
+            producoesFiltradas.sort((a, b) => new Date(a.data) - new Date(b.data)); // Ordena por data
+
+            const clienteSelecionadoObj = clienteIdSelecionado ? appData.clientes.find(c => c.id == clienteIdSelecionado) : null;
+            let totalGeralRelatorio = 0;
+
+            let html = `<div id="comprovante-para-impressao">`; // Reutiliza o ID para estilos de impressão
+            html += `<h1>Relatório de Produção por Período</h1>`;
+            html += `<p style="text-align:center; margin-bottom:10px;"><strong>${appData.configuracoes.nomeAtelie}</strong></p>`;
+            html += `<p><strong>Período:</strong> ${formatarData(dataInicio)} a ${formatarData(dataFim)}</p>`;
+            if (clienteSelecionadoObj) {
+                html += `<p><strong>Cliente:</strong> ${clienteSelecionadoObj.nome}</p>`;
+            }
+            html += `<hr>`;
+            html += `<table><thead><tr><th>Data</th><th>Peça Base</th><th>Descrição Detalhada</th><th>Qtd</th><th>Valor Item</th><th>Valor Total</th></tr></thead><tbody>`;
+
+            producoesFiltradas.forEach(p => {
+                const valorUnitario = p.quantidade > 0 ? (p.valorTotalItem / p.quantidade) : 0;
+                html += `<tr>
+                            <td>${formatarData(p.data)}</td>
+                            <td>${p.nomePecaModelo || '-'} ${p.corPeca ? `(${p.corPeca})` : ''}</td>
+                            <td>${p.modeloDescricao || '-'}</td>
+                            <td style="text-align:center;">${p.quantidade}</td>
+                            <td style="text-align:right;">${formatarMoeda(valorUnitario)}</td>
+                            <td style="text-align:right;">${formatarMoeda(p.valorTotalItem)}</td>
+                         </tr>`;
+                totalGeralRelatorio += p.valorTotalItem;
+            });
+
+            html += `</tbody></table>`;
+            html += `<hr>`;
+            html += `<h2 style="text-align:right; margin-top:15px;">Total Geral do Período: ${formatarMoeda(totalGeralRelatorio)}</h2>`;
+            html += `<p id="rodape-comprovante">Gerado por: Gestor de Ateliê Pro em ${formatarData(hojeFormatado())}</p>`;
+            html += `</div>`;
+
+            comprovanteContainerHidden.innerHTML = html;
+            requestAnimationFrame(() => { requestAnimationFrame(() => { window.print(); }); });
+        }
+        btnGerarRelatorioPeriodo.addEventListener('click', gerarRelatorioProducaoPeriodo);
+
+        function popularSelectClientesRelatorio() {
+            filtroRelatorioCliente.innerHTML = '<option value="">Todos os Clientes</option>';
+            appData.clientes.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.nome;
+                filtroRelatorioCliente.appendChild(option);
+            });
+        }
+
+
+        // --- INICIALIZAÇÃO ---
+        function inicializarTodasAsRenderizacoes() {
+            anoAtualEl.textContent = new Date().getFullYear();
+            prodDataInput.value = hojeFormatado(); reparoDataEntradaInput.value = hojeFormatado(); horasDataInput.value = hojeFormatado();
+            filtroMesDashboard.value = mesAnoAtualFormatado(); filtroMesProducao.value = mesAnoAtualFormatado(); filtroMesHoras.value = mesAnoAtualFormatado();
+            // Para relatório por período, definir datas padrão (ex: início do mês atual)
+            const hoje = new Date();
+            const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            filtroRelatorioDataInicio.value = primeiroDiaMes.toISOString().split('T')[0];
+            filtroRelatorioDataFim.value = hojeFormatado();
+
+
+            renderizarTabelaPecasModelos(); atualizarSelectPecaModeloProducao();
+            renderizarTabelaClientes(); popularSelectClientesProducao(); popularSelectClientesRelatorio(); // Popula também para o relatório
+            renderizarTabelaContatosUteis();
+            renderizarTabelaProducao(); renderizarTabelaReparos();
+            if (appData.configuracoes.modoInterface === 'completo') { renderizarHorasTrabalhadas(); renderizarAnotacoes(); }
+            renderizarDashboard(); 
+            if (appData.pecasModelos.length === 0 && btnAdicionarExemplosPecasModelos) { btnAdicionarExemplosPecasModelos.style.display = 'block'; } else if (btnAdicionarExemplosPecasModelos) { btnAdicionarExemplosPecasModelos.style.display = 'inline-block'; }
+            reatribuirListenersBotoesAjuda(); 
+        }
+
+        carregarDados(); 
+        inicializarTodasAsRenderizacoes(); 
+        if (bottomNavItems.length > 0) { bottomNavItems[0].click(); } 
+        console.log("App Ateliê Gestor Pro - vFinal com Correções FINAIS V - JS Finalizado.");
+    });
+    // FIM DO SCRIPT COMPLETO
+    </script>
+</body>
+</html>
