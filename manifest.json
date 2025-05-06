@@ -1,5 +1,5 @@
 {
-    "short_name": "AteliêApp",
+    "short_name": "Meu Ateliê",
     "name": "Gestor de Ateliê da Costureira",
     "icons": [
         {
@@ -13,7 +13,7 @@
             "sizes": "512x512"
         }
     ],
-    "start_url": "./atelie.html", /* Substitua pelo nome do seu arquivo HTML principal */
+    "start_url": "./index.html", /* Substitua pelo nome do seu arquivo HTML principal */
     "display": "standalone",
     "background_color": "#F4F6F9", /* Cor de fundo do seu app */
     "theme_color": "#E91E63"     /* Cor primária do seu app */
